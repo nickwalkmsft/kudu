@@ -4,7 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using Kudu.Contracts.Infrastructure;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-using NuGet.Client.VisualStudio;
+//using NuGet.Client.VisualStudio;
 
 namespace Kudu.Contracts.SiteExtensions
 {
@@ -43,22 +43,22 @@ namespace Kudu.Contracts.SiteExtensions
             InstallationArgs = info.InstallationArgs;
         }
 
-        public SiteExtensionInfo(UIPackageMetadata data)
-        {
-            Id = data.Identity.Id;
-            Title = data.Title;
-            Type = SiteExtensionType.Gallery;
-            Summary = data.Summary;
-            Description = data.Description;
-            Version = data.Identity.Version.ToNormalizedString();
-            ProjectUrl = data.ProjectUrl == null ? null : data.ProjectUrl.ToString();
-            IconUrl = data.IconUrl == null ? "https://www.siteextensions.net/Content/Images/packageDefaultIcon-50x50.png" : data.IconUrl.ToString();
-            LicenseUrl = data.LicenseUrl == null ? null : data.LicenseUrl.ToString();
-            Authors = data.Authors.Split(new string[] { "  " }, StringSplitOptions.RemoveEmptyEntries);
-            PublishedDateTime = data.Published;
-            IsLatestVersion = true;
-            DownloadCount = data.DownloadCount;
-        }
+        //public SiteExtensionInfo(UIPackageMetadata data)
+        //{
+        //    Id = data.Identity.Id;
+        //    Title = data.Title;
+        //    Type = SiteExtensionType.Gallery;
+        //    Summary = data.Summary;
+        //    Description = data.Description;
+        //    Version = data.Identity.Version.ToNormalizedString();
+        //    ProjectUrl = data.ProjectUrl == null ? null : data.ProjectUrl.ToString();
+        //    IconUrl = data.IconUrl == null ? "https://www.siteextensions.net/Content/Images/packageDefaultIcon-50x50.png" : data.IconUrl.ToString();
+        //    LicenseUrl = data.LicenseUrl == null ? null : data.LicenseUrl.ToString();
+        //    Authors = data.Authors.Split(new string[] { "  " }, StringSplitOptions.RemoveEmptyEntries);
+        //    PublishedDateTime = data.Published;
+        //    IsLatestVersion = true;
+        //    DownloadCount = data.DownloadCount;
+        //}
 
         [JsonProperty(PropertyName = "id")]
         public string Id
