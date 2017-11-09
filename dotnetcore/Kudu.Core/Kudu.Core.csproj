@@ -5,10 +5,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="LibGit2Sharp" Version="0.24.0" />
+    <Compile Remove="SiteExtensions\**" />
+    <EmbeddedResource Remove="SiteExtensions\**" />
+    <None Remove="SiteExtensions\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="LibGit2Sharp" Version="0.21.0.176" />
+    <PackageReference Include="Mercurial.Net" Version="1.1.1.607" />
     <PackageReference Include="Microsoft.Azure.WebSites.DataProtection" Version="0.1.78-alpha" />
     <PackageReference Include="ncrontab" Version="3.3.0" />
-    <PackageReference Include="NuGet.Client" Version="4.2.0" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.4.0" />
     <PackageReference Include="System.IO.Abstractions" Version="2.1.0.174" />
     <PackageReference Include="XmlSettings" Version="0.1.3" />

@@ -12,8 +12,9 @@ using Kudu.Core.Infrastructure;
 using Kudu.Core.Tracing;
 using NuGet.Client;
 using NuGet.Client.VisualStudio;
-using NuGet.PackagingCore;
+using NuGet.Packaging.Core;
 using NuGet.Versioning;
+using NuGet.Protocol.Core.Types;
 
 namespace Kudu.Core.SiteExtensions
 {

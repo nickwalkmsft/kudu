@@ -28,6 +28,8 @@ using NuGet.Client;
 using NuGet.Client.VisualStudio;
 using NuGet.Versioning;
 using NullLogger = Kudu.Core.Deployment.NullLogger;
+using NuGet.Protocol.Core.Types;
+
 namespace Kudu.Core.SiteExtensions
 {
     public class SiteExtensionManager : ISiteExtensionManager

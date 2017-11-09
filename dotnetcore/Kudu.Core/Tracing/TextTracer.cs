@@ -5,6 +5,7 @@ using System.IO;
 using System.Timers;
 using Kudu.Contracts.Tracing;
 using Kudu.Core.Infrastructure;
+using System.IO.Abstractions;
 
 namespace Kudu.Core.Tracing
 {
