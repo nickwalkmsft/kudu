@@ -4,8 +4,6 @@ using System.IO;
 using System.IO.Abstractions;
 using System.IO.Compression;
 using System.Linq;
-using System.Web;
-using System.Web.Hosting;
 using Kudu.Contracts.Jobs;
 using Kudu.Contracts.Settings;
 using Kudu.Core.Infrastructure;
@@ -43,7 +41,7 @@ namespace Kudu.Core.Jobs
         }
     }
 
-    public abstract class JobsManagerBase<TJob> : JobsManagerBase, IJobsManager<TJob>, IDisposable, IRegisteredObject where TJob : JobBase, new()
+    public abstract class JobsManagerBase<TJob> : JobsManagerBase, IJobsManager<TJob>, IDisposable where TJob : JobBase, new()
     {
         private const string DefaultScriptFileName = "run";
 
@@ -86,7 +84,6 @@ namespace Kudu.Core.Jobs
             JobsBinariesPath = Path.Combine(Environment.JobsBinariesPath, jobsTypePath);
             JobsDataPath = Path.Combine(Environment.JobsDataPath, jobsTypePath);
             JobsWatcher = new JobsFileWatcher(JobsBinariesPath, OnJobChanged, null, ListJobNames, traceFactory, analytics, jobsTypePath);
-            HostingEnvironment.RegisterObject(this);
         }
 
         protected virtual IEnumerable<string> ListJobNames(bool forceRefreshCache)
@@ -423,7 +420,6 @@ namespace Kudu.Core.Jobs
 
             IsShuttingdown = true;
             OnShutdown();
-            HostingEnvironment.UnregisterObject(this);
         }
 
         protected abstract void OnShutdown();
