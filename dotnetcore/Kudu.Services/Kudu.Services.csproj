@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Kudu.Contracts\Kudu.Contracts.csproj" />
+    <ProjectReference Include="..\Kudu.Core\Kudu.Core.csproj" />
+  </ItemGroup>
+
+</Project>
