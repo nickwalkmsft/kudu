@@ -10,6 +10,7 @@ using Kudu.Core.Infrastructure;
 using Kudu.Core.Tracing;
 using Newtonsoft.Json;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
 
 namespace Kudu.Core.Jobs
 {
@@ -49,6 +50,8 @@ namespace Kudu.Core.Jobs
 
         private string _lastKnownAppBaseUrlPrefix;
 
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
         internal static object jobsListCacheLockObj = new object();
 
         protected IEnvironment Environment { get; private set; }
@@ -72,12 +75,20 @@ namespace Kudu.Core.Jobs
 
         List<Action<string>> FileWatcherExtraEventHandlers;
 
-        protected JobsManagerBase(ITraceFactory traceFactory, IEnvironment environment, IDeploymentSettingsManager settings, IAnalytics analytics, string jobsTypePath)
+        protected JobsManagerBase(
+            ITraceFactory traceFactory,
+            IEnvironment environment,
+            IDeploymentSettingsManager settings,
+            IAnalytics analytics,
+            IHttpContextAccessor httpContextAccessor,
+            string jobsTypePath)
         {
             TraceFactory = traceFactory;
             Environment = environment;
             Settings = settings;
             Analytics = analytics;
+
+            _httpContextAccessor = httpContextAccessor;
 
             _jobsTypePath = jobsTypePath;
 
@@ -472,12 +483,16 @@ namespace Kudu.Core.Jobs
         {
             get
             {
-                if (HttpContext.Current == null)
+                var context = _httpContextAccessor.HttpContext;
+
+                if (context == null)
                 {
                     return _lastKnownAppBaseUrlPrefix;
                 }
 
-                _lastKnownAppBaseUrlPrefix = HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority);
+                var requestUrl = new Uri(context.Request.GetEncodedUrl());
+
+                _lastKnownAppBaseUrlPrefix = requestUrl.GetLeftPart(UriPartial.Authority);
                 return _lastKnownAppBaseUrlPrefix;
             }
         }
