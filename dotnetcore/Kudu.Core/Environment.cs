@@ -4,16 +4,19 @@ using System.Globalization;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Security;
-using System.Web;
 using Kudu.Contracts.Settings;
 using Kudu.Core.Helpers;
 using Kudu.Core.Infrastructure;
 using Microsoft.Win32;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
 
 namespace Kudu.Core
 {
     public class Environment : IEnvironment
     {
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
         private readonly string _webRootPath;
         private readonly string _deploymentsPath;
         private readonly string _deploymentToolsPath;
@@ -52,7 +55,8 @@ namespace Kudu.Core
                 string dataPath,
                 string siteExtensionSettingsPath,
                 string requestId,
-                string siteRestrictedJwt)
+                string siteRestrictedJwt,
+                IHttpContextAccessor httpContextAccessor)
         {
             if (repositoryPath == null)
             {
@@ -87,6 +91,8 @@ namespace Kudu.Core
 
             RequestId = !string.IsNullOrEmpty(requestId) ? requestId : Guid.Empty.ToString();
             SiteRestrictedJwt = siteRestrictedJwt;
+
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public Environment(
@@ -94,7 +100,8 @@ namespace Kudu.Core
                 string binPath,
                 string repositoryPath,
                 string requestId,
-                string siteRetrictedJwt)
+                string siteRetrictedJwt,
+                IHttpContextAccessor httpContextAccessor)
         {
             RootPath = rootPath;
 
@@ -142,6 +149,8 @@ namespace Kudu.Core
 
             RequestId = !string.IsNullOrEmpty(requestId) ? requestId : Guid.Empty.ToString();
             SiteRestrictedJwt = siteRetrictedJwt;
+
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public string RepositoryPath
@@ -328,7 +337,8 @@ namespace Kudu.Core
             get
             {
                 // GetLeftPart(Authority) returns the https://www.example.com of any Uri
-                var url = HttpContext.Current?.Request?.Url?.GetLeftPart(UriPartial.Authority);
+                var displayUrl = _httpContextAccessor.HttpContext?.Request?.GetDisplayUrl();
+                var url = displayUrl == null ? null : new Uri(displayUrl).GetLeftPart(UriPartial.Authority);
                 if (string.IsNullOrEmpty(url))
                 {
                     // if call is not done in Request context (eg. in BGThread), fall back to %host%

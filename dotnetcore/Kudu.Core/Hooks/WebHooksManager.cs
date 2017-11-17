@@ -187,7 +187,7 @@ namespace Kudu.Core.Hooks
 
         private static HttpClient CreateHttpClient(WebHook webHook)
         {
-            var webRequestHandler = new WebRequestHandler();
+            var webRequestHandler = new HttpClientHandler();
 
             var hookAddress = new Uri(webHook.HookAddress);
             string userInfo = hookAddress.UserInfo;
@@ -202,7 +202,8 @@ namespace Kudu.Core.Hooks
 
             if (webHook.InsecureSsl)
             {
-                webRequestHandler.ServerCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true;
+                // See https://github.com/dotnet/corefx/issues/9728
+                webRequestHandler.ServerCertificateCustomValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true;
             }
 
             return new HttpClient(webRequestHandler)
