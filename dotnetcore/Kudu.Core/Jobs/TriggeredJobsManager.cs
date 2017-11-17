@@ -11,6 +11,7 @@ using Kudu.Contracts.Settings;
 using Kudu.Core.Hooks;
 using Kudu.Core.Infrastructure;
 using Kudu.Core.Tracing;
+using Microsoft.AspNetCore.Http;
 
 namespace Kudu.Core.Jobs
 {
@@ -23,8 +24,14 @@ namespace Kudu.Core.Jobs
 
         private readonly IWebHooksManager _hooksManager;
 
-        public TriggeredJobsManager(ITraceFactory traceFactory, IEnvironment environment, IDeploymentSettingsManager settings, IAnalytics analytics, IWebHooksManager hooksManager)
-            : base(traceFactory, environment, settings, analytics, Constants.TriggeredPath)
+        public TriggeredJobsManager(
+            ITraceFactory traceFactory,
+            IEnvironment environment,
+            IDeploymentSettingsManager settings,
+            IAnalytics analytics,
+            IWebHooksManager hooksManager,
+            IHttpContextAccessor httpContextAccessor)
+            : base(traceFactory, environment, settings, analytics, httpContextAccessor, Constants.TriggeredPath)
         {
             _hooksManager = hooksManager;
         }

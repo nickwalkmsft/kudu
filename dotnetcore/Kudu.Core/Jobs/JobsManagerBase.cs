@@ -490,7 +490,7 @@ namespace Kudu.Core.Jobs
                     return _lastKnownAppBaseUrlPrefix;
                 }
 
-                var requestUrl = new Uri(context.Request.GetEncodedUrl());
+                var requestUrl = new Uri(context.Request.GetDisplayUrl());
 
                 _lastKnownAppBaseUrlPrefix = requestUrl.GetLeftPart(UriPartial.Authority);
                 return _lastKnownAppBaseUrlPrefix;

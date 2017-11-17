@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
-using System.Web;
 using Kudu.Contracts.Tracing;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.Extensions.Primitives;
 
 namespace Kudu.Core.Tracing
 {
@@ -108,31 +110,35 @@ namespace Kudu.Core.Tracing
             return _blackList.Contains(key);
         }
 
-        public static bool ShouldSkipRequest(HttpRequestBase request)
+        public static bool ShouldSkipRequest(HttpRequest request)
         {
             // Filter out pings to applications.
-            if (request.RawUrl == "/")
+            if (request.GetDisplayUrl() == "/")
             {
                 return true;
             }
 
-            if (String.IsNullOrEmpty(request.UserAgent))
+            StringValues userAgentValues;
+            request.Headers.TryGetValue("User-Agent", out userAgentValues);
+            var userAgent = userAgentValues.ToString();
+
+            if (String.IsNullOrEmpty(userAgent))
             {
                 return false;
             }
-
+            
             // Skip tracing direct browsers requests.
-            return (request.UserAgent.StartsWith("Mozilla", StringComparison.OrdinalIgnoreCase) ||
-                    request.UserAgent.StartsWith("Opera", StringComparison.OrdinalIgnoreCase));
+            return (userAgent.StartsWith("Mozilla", StringComparison.OrdinalIgnoreCase) ||
+                    userAgent.StartsWith("Opera", StringComparison.OrdinalIgnoreCase));
         }
 
         // From System.Web.Mvc.AjaxRequestExtensions.IsAjaxRequest
-        public static bool IsAjaxRequest(HttpRequestBase request)
+        public static bool IsAjaxRequest(HttpRequest request)
         {
             return String.Equals("XMLHttpRequest", request.Headers["X-REQUESTED-WITH"], StringComparison.OrdinalIgnoreCase);
         }
 
-        public static bool MismatchedHostReferer(HttpRequestBase request)
+        public static bool MismatchedHostReferer(HttpRequest request)
         {
             var referer = request.Headers["Referer"];
 
@@ -149,7 +155,7 @@ namespace Kudu.Core.Tracing
                 return true;
             }
 
-            return !String.Equals(request.Url.Host, refererUri.Host, StringComparison.OrdinalIgnoreCase);
+            return !String.Equals(new Uri(request.GetDisplayUrl()).Host, refererUri.Host, StringComparison.OrdinalIgnoreCase);
         }
 
         private static TraceLevel GetTraceLevel(IDictionary<string, string> attributes)

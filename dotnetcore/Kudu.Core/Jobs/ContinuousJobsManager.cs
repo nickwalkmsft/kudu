@@ -11,6 +11,7 @@ using Kudu.Core.Tracing;
 using System.Net;
 using System.Threading.Tasks;
 using Kudu.Contracts.Tracing;
+using Microsoft.AspNetCore.Http;
 
 namespace Kudu.Core.Jobs
 {
@@ -22,8 +23,13 @@ namespace Kudu.Core.Jobs
 
         private readonly Dictionary<string, ContinuousJobRunner> _continuousJobRunners = new Dictionary<string, ContinuousJobRunner>(StringComparer.OrdinalIgnoreCase);
 
-        public ContinuousJobsManager(ITraceFactory traceFactory, IEnvironment environment, IDeploymentSettingsManager settings, IAnalytics analytics)
-            : base(traceFactory, environment, settings, analytics, Constants.ContinuousPath)
+        public ContinuousJobsManager(
+            ITraceFactory traceFactory,
+            IEnvironment environment,
+            IDeploymentSettingsManager settings,
+            IAnalytics analytics,
+            IHttpContextAccessor httpContextAccessor)
+            : base(traceFactory, environment, settings, analytics, httpContextAccessor, Constants.ContinuousPath)
         {
             RegisterExtraEventHandlerForFileChange(OnJobChanged);
         }

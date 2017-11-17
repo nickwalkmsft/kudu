@@ -10,9 +10,9 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Web.Script.Serialization;
 using Kudu.Contracts.Settings;
 using Kudu.Core.Infrastructure;
+using Newtonsoft.Json;
 
 namespace Kudu.Core.Helpers
 {
@@ -122,15 +122,12 @@ namespace Kudu.Core.Helpers
 
             VerifyEnvironments();
 
-            // use framework serializer to avoid dependency requirement on callers
-            // though it is not the best serializer, it should do for this specific use.
-            var serializer = new JavaScriptSerializer();
             var funtionsPath = System.Environment.ExpandEnvironmentVariables(@"%HOME%\site\wwwroot");
             var triggers = Directory
                     .GetDirectories(funtionsPath)
                     .Select(d => Path.Combine(d, Constants.FunctionsConfigFile))
                     .Where(File.Exists)
-                    .SelectMany(f => DeserializeFunctionTrigger(serializer, f))
+                    .SelectMany(f => DeserializeFunctionTrigger(f))
                     .ToList();
 
             if (!string.IsNullOrEmpty(RoutingRunTimeVersion))
@@ -138,7 +135,7 @@ namespace Kudu.Core.Helpers
                 triggers.Add(new Dictionary<string, object> { { "type", "routingTrigger" } });
             }
 
-            var content = serializer.Serialize(triggers);
+            var content = JsonConvert.SerializeObject(triggers);
             Exception exception = null;
             try
             {
@@ -285,12 +282,12 @@ namespace Kudu.Core.Helpers
             }
         }
 
-        private static IEnumerable<Dictionary<string, object>> DeserializeFunctionTrigger(JavaScriptSerializer serializer, string functionJson)
+        private static IEnumerable<Dictionary<string, object>> DeserializeFunctionTrigger(string functionJson)
         {
             try
             {
                 var functionName = Path.GetFileName(Path.GetDirectoryName(functionJson));
-                var json = (Dictionary<string, object>)serializer.DeserializeObject(File.ReadAllText(functionJson));
+                var json = JsonConvert.DeserializeObject<Dictionary<string, object>>(File.ReadAllText(functionJson));
 
                 object value;
                 // https://github.com/Azure/azure-webjobs-sdk-script/blob/a9bafba78a3a8092bfd61a8c7093200dae867efb/src/WebJobs.Script/Host/ScriptHost.cs#L1476-L1498

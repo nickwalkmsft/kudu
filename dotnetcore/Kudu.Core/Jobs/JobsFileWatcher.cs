@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
-using System.Web.Hosting;
 using Kudu.Core.Infrastructure;
 using Kudu.Core.Tracing;
+using System.Threading.Tasks;
 
 namespace Kudu.Core.Jobs
 {
@@ -164,7 +164,11 @@ namespace Kudu.Core.Jobs
             // Error event is raised when the directory being watched gets deleted
             // in cases when a parent to that directory is deleted, this handler should 
             // finish quickly so the deletion does not fail.
-            HostingEnvironment.QueueBackgroundWorkItem(cancellationToken =>
+
+            // HostingEnvironment not supported in ASP.NET Core, running a simple Task instead
+            // HostingEnvironment.QueueBackgroundWorkItem(cancellationToken =>
+
+            Task.Run(() =>
             {
                 try
                 {
