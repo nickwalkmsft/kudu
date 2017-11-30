@@ -5,11 +5,16 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.0" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.0.0" />
+    <PackageReference Include="XmlSettings" Version="0.1.3" />
   </ItemGroup>
   <ItemGroup>
     <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Kudu.Core\Kudu.Core.csproj" />
+    <ProjectReference Include="..\Kudu.Services\Kudu.Services.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Tracing\" />
   </ItemGroup>
 </Project>

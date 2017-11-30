@@ -20,6 +20,8 @@ namespace Kudu.Core.Settings
         {
             var settings = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
+            // CORE TODO Use new Core config system, nothing shows up in ConfigurationManager.AppSettings.
+
             // Add all the .net <appSettings> (which themselves include portal settings in Azure!).
             foreach (string name in ConfigurationManager.AppSettings)
             {

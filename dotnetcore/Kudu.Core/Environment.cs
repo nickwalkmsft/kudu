@@ -336,8 +336,10 @@ namespace Kudu.Core
         {
             get
             {
+                // CORE TODO: Added ? aftter _httpContextAccessor. It's a little messy here.
+
                 // GetLeftPart(Authority) returns the https://www.example.com of any Uri
-                var displayUrl = _httpContextAccessor.HttpContext?.Request?.GetDisplayUrl();
+                var displayUrl = _httpContextAccessor?.HttpContext?.Request?.GetDisplayUrl();
                 var url = displayUrl == null ? null : new Uri(displayUrl).GetLeftPart(UriPartial.Authority);
                 if (string.IsNullOrEmpty(url))
                 {
