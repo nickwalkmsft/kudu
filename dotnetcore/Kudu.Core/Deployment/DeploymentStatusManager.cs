@@ -3,6 +3,7 @@ using System.IO;
 using Kudu.Contracts.Infrastructure;
 using Kudu.Core.Infrastructure;
 using Kudu.Core.Tracing;
+using System.Collections.Generic;
 
 namespace Kudu.Core.Deployment
 {
@@ -16,11 +17,12 @@ namespace Kudu.Core.Deployment
 
         public DeploymentStatusManager(IEnvironment environment,
                                        IAnalytics analytics,
-                                       IOperationLock statusLock)
+                                       //IOperationLock statusLock
+                                       IDictionary<string, IOperationLock> namedLocks)
         {
             _environment = environment;
             _analytics = analytics;
-            _statusLock = statusLock;
+            _statusLock = namedLocks["status"];
             _activeFile = Path.Combine(environment.DeploymentsPath, Constants.ActiveDeploymentFile);
         }
 

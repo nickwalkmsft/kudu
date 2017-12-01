@@ -21,6 +21,12 @@ using Kudu.Contracts.Infrastructure;
 using Kudu.Core.Tracing;
 using Kudu.Contracts.Tracing;
 using Kudu.Services.Web.Infrastructure;
+using System.Diagnostics;
+using Kudu.Core.Deployment;
+using Kudu.Core.Deployment.Generator;
+using Kudu.Core.Hooks;
+using Kudu.Contracts.SourceControl;
+using Kudu.Core.SourceControl;
 
 namespace Kudu.Services.Web
 {
@@ -42,10 +48,26 @@ namespace Kudu.Services.Web
         {
             services.AddMvc();
 
+            var serverConfiguration = new ServerConfiguration();
+
+            // CORE TODO This is new. See if over time we can refactor away the need for this?
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
             // Make sure %HOME% is correctly set
             EnsureHomeEnvironmentVariable();
 
             IEnvironment environment = GetEnvironment();
+
+
+            // General
+            services.AddSingleton<IServerConfiguration>(serverConfiguration);
+
+            // CORE TODO Looks like this doesn't ever actually do anything, can refactor out?
+            services.AddSingleton<IBuildPropertyProvider>(new BuildPropertyProvider());
+
+
+            // Per request environment
+            services.AddScoped<IEnvironment>(sp => GetEnvironment(sp.GetRequiredService<IDeploymentSettingsManager>(), sp.GetRequiredService<IHttpContextAccessor>().HttpContext));
 
             // CORE TODO We always use a null tracer for now
             var traceFactory = new TracerFactory(() => NullTracer.Instance);
@@ -59,17 +81,58 @@ namespace Kudu.Services.Web
             string sshKeyLockPath = Path.Combine(lockPath, Constants.SSHKeyLockFile);
             string hooksLockPath = Path.Combine(lockPath, Constants.HooksLockFile);
 
-            // CORE TODO grabbing traceFactory here instead of resolving from the service collection; any difference?
+            // CORE TODO grabbing traceFactory on the following few lines instead of resolving from the service collection; any difference?
             _deploymentLock = new DeploymentLockFile(deploymentLockPath, traceFactory);
             _deploymentLock.InitializeAsyncLocks();
 
-            // CORE TODO Ninject's "WhenInjectedInto" for specific instances
+            var statusLock = new LockFile(statusLockPath, traceFactory);
+            var sshKeyLock = new LockFile(sshKeyLockPath, traceFactory);
+            var hooksLock = new LockFile(hooksLockPath, traceFactory);
 
-            services.AddSingleton<IOperationLock>(_deploymentLock);
+            // CORE TODO This originally used Ninject's "WhenInjectedInto" for specific instances. IServiceCollection
+            // doesn't support this concept, or anything similar like named instances. There are a few possibilities, but the hack
+            // solution for now is just injecting a dictionary of locks and letting each dependent resolve the one it needs.
+            var namedLocks = new Dictionary<string, IOperationLock>
+            {
+                { "status", statusLock }, // DeploymentStatusManager
+                { "ssh", sshKeyLock }, // SSHKeyController
+                { "hooks", hooksLock }, // WebHooksManager
+                { "deployment", _deploymentLock } // DeploymentController, SettingsController, FetchDeploymentManager
+            };
+
+            services.AddSingleton<IDictionary<string, IOperationLock>>(namedLocks);
+
+            IDeploymentSettingsManager noContextDeploymentsSettingsManager =
+                new DeploymentSettingsManager(new XmlSettings.Settings(GetSettingsPath(environment)));
+
+            var noContextTraceFactory = new TracerFactory(() => GetTracerWithoutContext(environment, noContextDeploymentsSettingsManager));
+            var etwTraceFactory = new TracerFactory(() => new ETWTracer(string.Empty, string.Empty));
+
+            // CORE TODO
+            // TraceServices.TraceLevel = noContextDeploymentsSettingsManager.GetTraceLevel();
+
+            services.AddTransient<IAnalytics>(sp => new Analytics(sp.GetRequiredService<IDeploymentSettingsManager>(),
+                                                                  sp.GetRequiredService<IServerConfiguration>(),
+                                                                  noContextTraceFactory));
+
+
 
             services.AddScoped<ISettings>(sp => new XmlSettings.Settings(GetSettingsPath(environment)));
 
             services.AddScoped<IDeploymentSettingsManager, DeploymentSettingsManager>();
+
+            services.AddScoped<IDeploymentStatusManager, DeploymentStatusManager>();
+
+            services.AddScoped<ISiteBuilderFactory, SiteBuilderFactory>();
+
+            services.AddScoped<IWebHooksManager, WebHooksManager>();
+
+            services.AddScoped<ILogger>(sp => GetLogger());
+
+            services.AddScoped<IDeploymentManager, DeploymentManager>();
+
+            services.AddScoped<IRepositoryFactory>(sp => _deploymentLock.RepositoryFactory = new RepositoryFactory(
+                sp.GetRequiredService<IEnvironment>(), sp.GetRequiredService<IDeploymentSettingsManager>(), sp.GetRequiredService<ITraceFactory>()));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -136,5 +199,38 @@ namespace Kudu.Services.Web
             }
             */
         }
+
+        private static ITracer GetTracerWithoutContext(IEnvironment environment, IDeploymentSettingsManager settings)
+        {
+            // when file system has issue, this can throw (environment.TracePath calls EnsureDirectory).
+            // prefer no-op tracer over outage.
+            return OperationManager.SafeExecute(() =>
+            {
+                TraceLevel level = settings.GetTraceLevel();
+                if (level > TraceLevel.Off)
+                {
+                    return new XmlTracer(environment.TracePath, level);
+                }
+
+                return NullTracer.Instance;
+            }) ?? NullTracer.Instance;
+        }
+
+        // CORE TODO The original GetLogger is below. Do this later. Always get a null logger for now.
+        private static ILogger GetLogger() => NullLogger.Instance;
+
+        /*
+        private static ILogger GetLogger(IEnvironment environment, IKernel kernel)
+        {
+            TraceLevel level = kernel.Get<IDeploymentSettingsManager>().GetTraceLevel();
+            if (level > TraceLevel.Off && TraceServices.CurrentRequestTraceFile != null)
+            {
+                string textPath = Path.Combine(environment.DeploymentTracePath, TraceServices.CurrentRequestTraceFile);
+                return new TextLogger(textPath);
+            }
+
+            return NullLogger.Instance;
+        }
+        */
     }
 }

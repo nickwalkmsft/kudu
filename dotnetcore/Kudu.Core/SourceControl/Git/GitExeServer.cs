@@ -7,6 +7,7 @@ using Kudu.Contracts.SourceControl;
 using Kudu.Contracts.Tracing;
 using Kudu.Core.Deployment;
 using Kudu.Core.Tracing;
+using System.Collections.Generic;
 
 namespace Kudu.Core.SourceControl.Git
 {

@@ -39,11 +39,15 @@ namespace Kudu.Core.Hooks
             JsonSerializerSettings.Converters.Add(new StringEnumConverter() { CamelCaseText = true });
         }
 
-        public WebHooksManager(ITracer tracer, IEnvironment environment, IOperationLock hooksLock)
+        public WebHooksManager(
+            ITracer tracer,
+            IEnvironment environment,
+            //IOperationLock hooksLock
+            IDictionary<string, IOperationLock> namedLocks)
         {
             _tracer = tracer;
             _environment = environment;
-            _hooksLock = hooksLock;
+            _hooksLock = namedLocks["hooks"];
 
             _hooksFilePath = Path.Combine(_environment.DeploymentsPath, HooksFileName);
         }

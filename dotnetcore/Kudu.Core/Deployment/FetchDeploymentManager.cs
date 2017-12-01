@@ -31,14 +31,15 @@ namespace Kudu.Core.Deployment
             IDeploymentSettingsManager settings,
             IEnvironment environment,
             ITracer tracer,
-            IOperationLock deploymentLock,
+            //IOperationLock deploymentLock,
+            IDictionary<string, IOperationLock> namedLocks,
             IDeploymentManager deploymentManager,
             IDeploymentStatusManager status)
         {
             _settings = settings;
             _environment = environment;
             _tracer = tracer;
-            _deploymentLock = deploymentLock;
+            _deploymentLock = namedLocks["deployment"];
             _deploymentManager = deploymentManager;
             _status = status;
 

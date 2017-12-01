@@ -4,6 +4,7 @@ using Kudu.Contracts.Infrastructure;
 using Kudu.Contracts.Settings;
 using Newtonsoft.Json.Linq;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 
 namespace Kudu.Services.Settings
 {
@@ -13,10 +14,13 @@ namespace Kudu.Services.Settings
         private readonly IDeploymentSettingsManager _settingsManager;
         private readonly IOperationLock _deploymentLock;
 
-        public SettingsController(IDeploymentSettingsManager settingsManager, IOperationLock deploymentLock)
+        public SettingsController(
+            IDeploymentSettingsManager settingsManager,
+            //IOperationLock deploymentLock
+            IDictionary<string, IOperationLock> namedLocks)
         {
             _settingsManager = settingsManager;
-            _deploymentLock = deploymentLock;
+            _deploymentLock = namedLocks["deployment"];
         }
 
         /// <summary>
