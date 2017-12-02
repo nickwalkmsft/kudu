@@ -89,7 +89,7 @@ namespace Kudu.Services.Deployment
                         }
                         catch (InvalidOperationException ex)
                         {
-                            result = StatusCode((int)HttpStatusCode.Conflict, ex);
+                            result = StatusCode(StatusCodes.Status409Conflict, ex);
                         }
                     }, "Deleting deployment", TimeSpan.Zero);
                 }

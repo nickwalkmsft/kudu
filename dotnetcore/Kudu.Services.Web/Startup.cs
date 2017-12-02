@@ -97,7 +97,7 @@ namespace Kudu.Services.Web
                 { "status", statusLock }, // DeploymentStatusManager
                 { "ssh", sshKeyLock }, // SSHKeyController
                 { "hooks", hooksLock }, // WebHooksManager
-                { "deployment", _deploymentLock } // DeploymentController, DeploymentManager, SettingsController, FetchDeploymentManager
+                { "deployment", _deploymentLock } // DeploymentController, DeploymentManager, SettingsController, FetchDeploymentManager, LiveScmController
             };
 
             services.AddSingleton<IDictionary<string, IOperationLock>>(namedLocks);
@@ -156,6 +156,11 @@ namespace Kudu.Services.Web
                 routes.MapRoute(
                     name: "default",
                     template: "{controller}/{action=Index}/{id?}");
+
+                // Scm (deployment repository)
+                routes.MapHttpRouteDual("scm-info", "scm/info", new { controller = "LiveScm", action = "GetRepositoryInfo" });
+                routes.MapHttpRouteDual("scm-clean", "scm/clean", new { controller = "LiveScm", action = "Clean" });
+                routes.MapHttpRouteDual("scm-delete", "scm", new { controller = "LiveScm", action = "Delete" }, new { verb = new HttpMethodRouteConstraint("DELETE") });
 
                 // Deployments
                 routes.MapHttpRouteDual("all-deployments", "deployments", new { controller = "Deployment", action = "GetDeployResults" }, new { verb = new HttpMethodRouteConstraint("GET") });

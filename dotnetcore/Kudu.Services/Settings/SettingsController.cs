@@ -5,6 +5,7 @@ using Kudu.Contracts.Settings;
 using Newtonsoft.Json.Linq;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Http;
 
 namespace Kudu.Services.Settings
 {
@@ -69,7 +70,7 @@ namespace Kudu.Services.Settings
             }
             catch (LockOperationException ex)
             {
-                return StatusCode((int)HttpStatusCode.Conflict, ex.Message);
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
             }
         }
 
@@ -96,7 +97,7 @@ namespace Kudu.Services.Settings
             }
             catch (LockOperationException ex)
             {
-                return StatusCode((int)HttpStatusCode.Conflict, ex.Message);
+                return StatusCode(StatusCodes.Status409Conflict, ex.Message);
             }
         }
 
