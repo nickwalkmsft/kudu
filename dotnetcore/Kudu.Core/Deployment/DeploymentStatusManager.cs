@@ -17,12 +17,17 @@ namespace Kudu.Core.Deployment
 
         public DeploymentStatusManager(IEnvironment environment,
                                        IAnalytics analytics,
-                                       //IOperationLock statusLock
                                        IDictionary<string, IOperationLock> namedLocks)
+            : this(environment, analytics, namedLocks["status"])
+        { }
+
+        public DeploymentStatusManager(IEnvironment environment,
+                                       IAnalytics analytics,
+                                       IOperationLock statusLock)
         {
             _environment = environment;
             _analytics = analytics;
-            _statusLock = namedLocks["status"];
+            _statusLock = statusLock;
             _activeFile = Path.Combine(environment.DeploymentsPath, Constants.ActiveDeploymentFile);
         }
 

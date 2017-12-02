@@ -97,7 +97,7 @@ namespace Kudu.Services.Web
                 { "status", statusLock }, // DeploymentStatusManager
                 { "ssh", sshKeyLock }, // SSHKeyController
                 { "hooks", hooksLock }, // WebHooksManager
-                { "deployment", _deploymentLock } // DeploymentController, SettingsController, FetchDeploymentManager
+                { "deployment", _deploymentLock } // DeploymentController, DeploymentManager, SettingsController, FetchDeploymentManager
             };
 
             services.AddSingleton<IDictionary<string, IOperationLock>>(namedLocks);
@@ -157,6 +157,15 @@ namespace Kudu.Services.Web
                     name: "default",
                     template: "{controller}/{action=Index}/{id?}");
 
+                // Deployments
+                routes.MapHttpRouteDual("all-deployments", "deployments", new { controller = "Deployment", action = "GetDeployResults" }, new { verb = new HttpMethodRouteConstraint("GET") });
+                routes.MapHttpRouteDual("one-deployment-get", "deployments/{id}", new { controller = "Deployment", action = "GetResult" }, new { verb = new HttpMethodRouteConstraint("GET") });
+                routes.MapHttpRouteDual("one-deployment-put", "deployments/{id?}", new { controller = "Deployment", action = "Deploy" }, new { verb = new HttpMethodRouteConstraint("PUT") });
+                routes.MapHttpRouteDual("one-deployment-delete", "deployments/{id}", new { controller = "Deployment", action = "Delete" }, new { verb = new HttpMethodRouteConstraint("DELETE") });
+                routes.MapHttpRouteDual("one-deployment-log", "deployments/{id}/log", new { controller = "Deployment", action = "GetLogEntry" });
+                routes.MapHttpRouteDual("one-deployment-log-details", "deployments/{id}/log/{logId}", new { controller = "Deployment", action = "GetLogEntryDetails" });
+
+                // Settings
                 routes.MapHttpRouteDual("set-setting", "settings", new { controller = "Settings", action = "Set" }, new { verb = new HttpMethodRouteConstraint("POST") });
                 routes.MapHttpRouteDual("get-all-settings", "settings", new { controller = "Settings", action = "GetAll" }, new { verb = new HttpMethodRouteConstraint("GET") });
                 routes.MapHttpRouteDual("get-setting", "settings/{key}", new { controller = "Settings", action = "Get" }, new { verb = new HttpMethodRouteConstraint("GET") });

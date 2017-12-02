@@ -35,11 +35,21 @@ namespace Kudu.Core.Deployment
             IDictionary<string, IOperationLock> namedLocks,
             IDeploymentManager deploymentManager,
             IDeploymentStatusManager status)
+            : this(settings, environment, tracer, namedLocks["deployment"], deploymentManager, status)
+        { }
+
+        public FetchDeploymentManager(
+            IDeploymentSettingsManager settings,
+            IEnvironment environment,
+            ITracer tracer,
+            IOperationLock deploymentLock,
+            IDeploymentManager deploymentManager,
+            IDeploymentStatusManager status)
         {
             _settings = settings;
             _environment = environment;
             _tracer = tracer;
-            _deploymentLock = namedLocks["deployment"];
+            _deploymentLock = deploymentLock;
             _deploymentManager = deploymentManager;
             _status = status;
 

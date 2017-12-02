@@ -46,6 +46,18 @@ namespace Kudu.Core.Deployment
                                  IAnalytics analytics,
                                  IDeploymentSettingsManager settings,
                                  IDeploymentStatusManager status,
+                                 IDictionary<string, IOperationLock> namedLocks,
+                                 ILogger globalLogger,
+                                 IWebHooksManager hooksManager)
+            : this(builderFactory, environment, traceFactory, analytics, settings, status, namedLocks["deployment"], globalLogger, hooksManager)
+        { }
+
+        public DeploymentManager(ISiteBuilderFactory builderFactory,
+                                 IEnvironment environment,
+                                 ITraceFactory traceFactory,
+                                 IAnalytics analytics,
+                                 IDeploymentSettingsManager settings,
+                                 IDeploymentStatusManager status,
                                  IOperationLock deploymentLock,
                                  ILogger globalLogger,
                                  IWebHooksManager hooksManager)

@@ -30,6 +30,8 @@ using Microsoft.Net.Http.Headers;
 
 namespace Kudu.Services.Deployment
 {
+    // CORE TODO There was a lot of refactoring here to use IActionResults and some complications around
+    // HttpResponseException (no longer exists). Make sure this still all provides the right behavior.
     public class DeploymentController : Controller
     {
         private static DeploymentsCacheItem _cachedDeployments = DeploymentsCacheItem.None;
@@ -68,26 +70,36 @@ namespace Kudu.Services.Deployment
         /// </summary>
         /// <param name="id">id of the deployment to delete</param>
         [HttpDelete]
-        public void Delete(string id)
+        public IActionResult Delete(string id)
         {
+            IActionResult result = Ok();
             using (_tracer.Step("DeploymentService.Delete"))
             {
-                _deploymentLock.LockHttpOperation(() =>
+                try
                 {
-                    try
+                    _deploymentLock.LockOperation(() =>
                     {
-                        _deploymentManager.Delete(id);
-                    }
-                    catch (DirectoryNotFoundException ex)
-                    {
-                        throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.NotFound, ex));
-                    }
-                    catch (InvalidOperationException ex)
-                    {
-                        throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Conflict, ex));
-                    }
-                }, "Deleting deployment");
+                        try
+                        {
+                            _deploymentManager.Delete(id);
+                        }
+                        catch (DirectoryNotFoundException ex)
+                        {
+                            result = NotFound(ex);
+                        }
+                        catch (InvalidOperationException ex)
+                        {
+                            result = StatusCode((int)HttpStatusCode.Conflict, ex);
+                        }
+                    }, "Deleting deployment", TimeSpan.Zero);
+                }
+                catch (LockOperationException ex)
+                {
+                    result = StatusCode(StatusCodes.Status409Conflict, ex.Message);
+                }
             }
+
+            return result;
         }
 
         /// <summary>
@@ -95,122 +107,139 @@ namespace Kudu.Services.Deployment
         /// </summary>
         /// <param name="id">id of the deployment to redeploy</param>
         [HttpPut]
-        public async Task<HttpResponseMessage> Deploy(string id = null)
+        public async Task<IActionResult> Deploy(string id = null)
         {
-            JObject result = GetJsonContent();
+            JObject jsonContent = GetJsonContent();
 
             // Just block here to read the json payload from the body
             using (_tracer.Step("DeploymentService.Deploy(id)"))
             {
-                HttpResponseMessage response = Request.CreateResponse(HttpStatusCode.OK);
-                await _deploymentLock.LockHttpOperationAsync(async () =>
+                IActionResult result = Ok();
+
+                try
                 {
-                    try
+                    await _deploymentLock.LockOperationAsync(async () =>
                     {
-                        if (PostDeploymentHelper.IsAutoSwapOngoing())
-                        {
-                            throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Conflict, Resources.Error_AutoSwapDeploymentOngoing));
-                        }
-
-                        DeployResult deployResult;
-                        if (TryParseDeployResult(id, result, out deployResult))
-                        {
-                            using (_tracer.Step("DeploymentService.Create(id)"))
-                            {
-                                CreateDeployment(deployResult, result.Value<string>("details"));
-
-                                // e.g if final url is "https://kudutry.scm.azurewebsites.net/api/deployments/ef52ec67fc9574e726955a9cbaf7bcba791e4e95/log"
-                                // deploymentUri should be "https://kudutry.scm.azurewebsites.net/api/deployments/ef52ec67fc9574e726955a9cbaf7bcba791e4e95"
-                                Uri deploymentUri = kUriHelper.MakeRelative(kUriHelper.GetBaseUri(Request), nwe Uri(Request.GetDisplayUrl()).AbsolutePath);
-                                deployResult.Url = deploymentUri;
-                                deployResult.LogUrl = kUriHelper.MakeRelative(deploymentUri, "log");
-
-                                response = Request.CreateResponse(HttpStatusCode.OK, ArmUtils.AddEnvelopeOnArmRequest(deployResult, Request));
-                                return;
-                            }
-                        }
-
-                        bool clean = false;
-                        bool needFileUpdate = true;
-
-                        if (result != null)
-                        {
-                            clean = result.Value<bool>("clean");
-                            JToken needFileUpdateToken;
-                            if (result.TryGetValue("needFileUpdate", out needFileUpdateToken))
-                            {
-                                needFileUpdate = needFileUpdateToken.Value<bool>();
-                            }
-                        }
-
-                        string username = null;
-                        AuthUtility.TryExtractBasicAuthUser(Request, out username);
-
-                        IRepository repository = _repositoryFactory.GetRepository();
-                        if (repository == null)
-                        {
-                            throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.NotFound, Resources.Error_RepositoryNotFound));
-                        }
-                        ChangeSet changeSet = null;
-                        if (!String.IsNullOrEmpty(id))
-                        {
-                            changeSet = repository.GetChangeSet(id);
-                            if (changeSet == null)
-                            {
-                                string message = String.Format(CultureInfo.CurrentCulture, Resources.Error_DeploymentNotFound, id);
-                                throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.NotFound, message));
-                            }
-                        }
-
                         try
                         {
-                            await _deploymentManager.DeployAsync(repository, changeSet, username, clean, needFileUpdate);
+                            if (PostDeploymentHelper.IsAutoSwapOngoing())
+                            {
+                                result = StatusCode(StatusCodes.Status409Conflict, Resources.Error_AutoSwapDeploymentOngoing);
+                                return;
+                            }
+
+                            DeployResult deployResult;
+                            if (TryParseDeployResult(id, jsonContent, out deployResult))
+                            {
+                                using (_tracer.Step("DeploymentService.Create(id)"))
+                                {
+                                    CreateDeployment(deployResult, jsonContent.Value<string>("details"));
+
+                                    // e.g if final url is "https://kudutry.scm.azurewebsites.net/api/deployments/ef52ec67fc9574e726955a9cbaf7bcba791e4e95/log"
+                                    // deploymentUri should be "https://kudutry.scm.azurewebsites.net/api/deployments/ef52ec67fc9574e726955a9cbaf7bcba791e4e95"
+                                    Uri deploymentUri = kUriHelper.MakeRelative(kUriHelper.GetBaseUri(Request), new Uri(Request.GetDisplayUrl()).AbsolutePath);
+                                    deployResult.Url = deploymentUri;
+                                    deployResult.LogUrl = kUriHelper.MakeRelative(deploymentUri, "log");
+
+                                    //response = Request.CreateResponse(HttpStatusCode.OK, ArmUtils.AddEnvelopeOnArmRequest(deployResult, Request));
+                                    result = Ok(ArmUtils.AddEnvelopeOnArmRequest(deployResult, Request));
+                                    return;
+                                }
+                            }
+
+                            bool clean = false;
+                            bool needFileUpdate = true;
+
+                            if (jsonContent != null)
+                            {
+                                clean = jsonContent.Value<bool>("clean");
+                                JToken needFileUpdateToken;
+                                if (jsonContent.TryGetValue("needFileUpdate", out needFileUpdateToken))
+                                {
+                                    needFileUpdate = needFileUpdateToken.Value<bool>();
+                                }
+                            }
+
+                            string username = null;
+                            AuthUtility.TryExtractBasicAuthUser(Request, out username);
+
+                            IRepository repository = _repositoryFactory.GetRepository();
+                            if (repository == null)
+                            {
+                                result = NotFound(Resources.Error_RepositoryNotFound);
+                                return;
+                            }
+                            ChangeSet changeSet = null;
+                            if (!String.IsNullOrEmpty(id))
+                            {
+                                changeSet = repository.GetChangeSet(id);
+                                if (changeSet == null)
+                                {
+                                    string message = String.Format(CultureInfo.CurrentCulture, Resources.Error_DeploymentNotFound, id);
+                                    result = NotFound(message);
+                                    return;
+                                }
+                            }
+
+                            try
+                            {
+                                await _deploymentManager.DeployAsync(repository, changeSet, username, clean, needFileUpdate);
+                            }
+                            catch (DeploymentFailedException ex)
+                            {
+                                if (!ArmUtils.IsArmRequest(Request))
+                                {
+                                    throw;
+                                }
+
+                                // if requests comes thru ARM, we adjust the error code from 500 -> 400
+                                result = BadRequest(ex.ToString());
+                                return;
+                            }
+
+                            // auto-swap
+                            if (PostDeploymentHelper.IsAutoSwapEnabled())
+                            {
+                                if (changeSet == null)
+                                {
+                                    var targetBranch = _settings.GetBranch();
+                                    changeSet = repository.GetChangeSet(targetBranch);
+                                }
+
+                                IDeploymentStatusFile statusFile = _status.Open(changeSet.Id);
+                                if (statusFile != null && statusFile.Status == DeployStatus.Success)
+                                {
+                                    await PostDeploymentHelper.PerformAutoSwap(_environment.RequestId, _environment.SiteRestrictedJwt, new PostDeploymentTraceListener(_tracer, _deploymentManager.GetLogger(changeSet.Id)));
+                                }
+                            }
                         }
-                        catch (DeploymentFailedException ex)
+                        catch (FileNotFoundException ex)
                         {
-                            if (!ArmUtils.IsArmRequest(Request))
-                            {
-                                throw;
-                            }
-
-                            // if requests comes thru ARM, we adjust the error code from 500 -> 400
-                            throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.BadRequest, ex.ToString()));
+                            result = NotFound(ex);
                         }
-
-                        // auto-swap
-                        if (PostDeploymentHelper.IsAutoSwapEnabled())
+                        catch (InvalidStatusException)
                         {
-                            if (changeSet == null)
-                            {
-                                var targetBranch = _settings.GetBranch();
-                                changeSet = repository.GetChangeSet(targetBranch);
-                            }
-
-                            IDeploymentStatusFile statusFile = _status.Open(changeSet.Id);
-                            if (statusFile != null && statusFile.Status == DeployStatus.Success)
-                            {
-                                await PostDeploymentHelper.PerformAutoSwap(_environment.RequestId, _environment.SiteRestrictedJwt, new PostDeploymentTraceListener(_tracer, _deploymentManager.GetLogger(changeSet.Id)));
-                            }
+                            result = BadRequest("Only successful status can be active!");
                         }
-                    }
-                    catch (FileNotFoundException ex)
-                    {
-                        throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.NotFound, ex));
-                    }
-                }, "Performing deployment");
+                    }, "Performing deployment", TimeSpan.Zero);
+                }
+                catch (LockOperationException ex)
+                {
+                    return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+                }
 
-                return response;
+                return result;
             }
         }
 
-        public void CreateDeployment(DeployResult deployResult, string details)
+        public IActionResult CreateDeployment(DeployResult deployResult, string details)
         {
             var id = deployResult.Id;
             string path = Path.Combine(_environment.DeploymentsPath, id);
             IDeploymentStatusFile statusFile = _status.Open(id);
             if (statusFile != null)
             {
-                throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Conflict, String.Format("Deployment with id '{0}' exists", id)));
+                return StatusCode(StatusCodes.Status409Conflict, String.Format("Deployment with id '{0}' exists", id));
             }
 
             FileSystemHelpers.EnsureDirectory(path);
@@ -252,6 +281,8 @@ namespace Kudu.Services.Deployment
             {
                 innerLogger.Log(details);
             }
+
+            return Ok();
         }
 
         public bool TryParseDeployResult(string id, JObject payload, out DeployResult deployResult)
@@ -311,7 +342,7 @@ namespace Kudu.Services.Deployment
             {
                 if (active.Value && deployResult.Status != DeployStatus.Success)
                 {
-                    throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.BadRequest, "Only successful status can be active!"));
+                    throw new InvalidStatusException();
                 }
 
                 deployResult.Current = active.Value;
@@ -320,14 +351,16 @@ namespace Kudu.Services.Deployment
             return true;
         }
 
+        private class InvalidStatusException : Exception { }
+
         /// <summary>
         /// Get the list of all deployments
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public HttpResponseMessage GetDeployResults()
+        public IActionResult GetDeployResults()
         {
-            HttpResponseMessage response;
+            IActionResult result;
             EntityTagHeaderValue currentEtag = null;
             DeploymentsCacheItem cachedDeployments = _cachedDeployments;
 
@@ -339,7 +372,7 @@ namespace Kudu.Services.Deployment
 
             if (EtagEquals(Request, currentEtag))
             {
-                response = Request.CreateResponse(HttpStatusCode.NotModified);
+                result = StatusCode(StatusCodes.Status304NotModified);
             }
             else
             {
@@ -356,7 +389,7 @@ namespace Kudu.Services.Deployment
                         _cachedDeployments = cachedDeployments;
                     }
 
-                    response = Request.CreateResponse(HttpStatusCode.OK, ArmUtils.AddEnvelopeOnArmRequest(cachedDeployments.Results, Request));
+                    result = Ok(ArmUtils.AddEnvelopeOnArmRequest(cachedDeployments.Results, Request));
                 }
             }
 
@@ -365,7 +398,7 @@ namespace Kudu.Services.Deployment
             //response.Headers.ETag = currentEtag;
             Response.Headers.Add("ETag", currentEtag.Tag.Value);
 
-            return response;
+            return result;
         }
 
         /// <summary>
@@ -374,7 +407,7 @@ namespace Kudu.Services.Deployment
         /// <param name="id">id of the deployment</param>
         /// <returns></returns>
         [HttpGet]
-        public HttpResponseMessage GetLogEntry(string id)
+        public IActionResult GetLogEntry(string id)
         {
             using (_tracer.Step("DeploymentService.GetLogEntry"))
             {
@@ -390,11 +423,11 @@ namespace Kudu.Services.Deployment
                         }
                     }
 
-                    return Request.CreateResponse(HttpStatusCode.OK, ArmUtils.AddEnvelopeOnArmRequest(deployments, Request));
+                    return Ok(ArmUtils.AddEnvelopeOnArmRequest(deployments, Request));
                 }
                 catch (FileNotFoundException ex)
                 {
-                    throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.NotFound, ex));
+                    return NotFound(ex);
                 }
             }
         }
@@ -406,7 +439,7 @@ namespace Kudu.Services.Deployment
         /// <param name="logId">id of the log entry</param>
         /// <returns></returns>
         [HttpGet]
-        public HttpResponseMessage GetLogEntryDetails(string id, string logId)
+        public IActionResult GetLogEntryDetails(string id, string logId)
         {
             using (_tracer.Step("DeploymentService.GetLogEntryDetails"))
             {
@@ -414,15 +447,15 @@ namespace Kudu.Services.Deployment
                 {
                     var details = _deploymentManager.GetLogEntryDetails(id, logId).ToList();
                     return details.Any()
-                        ? Request.CreateResponse(HttpStatusCode.OK, ArmUtils.AddEnvelopeOnArmRequest(details, Request))
-                        : Request.CreateErrorResponse(HttpStatusCode.NotFound, String.Format(CultureInfo.CurrentCulture,
+                        ? (IActionResult)Ok(ArmUtils.AddEnvelopeOnArmRequest(details, Request))
+                        : NotFound(String.Format(CultureInfo.CurrentCulture,
                         Resources.Error_LogDetailsNotFound,
                         logId,
                         id));
                 }
                 catch (FileNotFoundException ex)
                 {
-                    throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.NotFound, ex));
+                    return NotFound(ex);
                 }
             }
         }
@@ -433,33 +466,31 @@ namespace Kudu.Services.Deployment
         /// <param name="id">id of the deployment</param>
         /// <returns></returns>
         [HttpGet]
-        public HttpResponseMessage GetResult(string id)
+        public IActionResult GetResult(string id)
         {
             using (_tracer.Step("DeploymentService.GetResult"))
             {
                 DeployResult pending;
                 if (IsLatestPendingDeployment(ref id, out pending))
                 {
-                    var response = Request.CreateResponse(HttpStatusCode.Accepted, ArmUtils.AddEnvelopeOnArmRequest(pending, Request));
-                    response.Headers.Location = new Uri(Request.GetDisplayUrl());
-                    return response;
+                    Response.Headers["Location"] = Request.GetDisplayUrl();
+                    return Accepted(ArmUtils.AddEnvelopeOnArmRequest(pending, Request));
                 }
 
                 DeployResult result = _deploymentManager.GetResult(id);
 
                 if (result == null)
                 {
-                    var response = Request.CreateErrorResponse(HttpStatusCode.NotFound, String.Format(CultureInfo.CurrentCulture,
+                    return NotFound(String.Format(CultureInfo.CurrentCulture,
                                                                        Resources.Error_DeploymentNotFound,
                                                                        id));
-                    throw new HttpResponseException(response);
                 }
 
                 Uri baseUri = kUriHelper.MakeRelative(kUriHelper.GetBaseUri(Request), new Uri(Request.GetDisplayUrl()).AbsolutePath);
                 result.Url = baseUri;
                 result.LogUrl = kUriHelper.MakeRelative(baseUri, "log");
 
-                return Request.CreateResponse(HttpStatusCode.OK, ArmUtils.AddEnvelopeOnArmRequest(result, Request));
+                return Ok(ArmUtils.AddEnvelopeOnArmRequest(result, Request));
             }
         }
 
@@ -500,25 +531,26 @@ namespace Kudu.Services.Deployment
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public HttpResponseMessage GetDeploymentScript()
+        public IActionResult GetDeploymentScript()
         {
             using (_tracer.Step("DeploymentService.GetDeploymentScript"))
             {
                 if (!_deploymentManager.GetResults().Any())
                 {
-                    throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.NotFound, "Need to deploy website to get deployment script."));
+                    return NotFound("Need to deploy website to get deployment script.");
                 }
 
                 string deploymentScriptContent = _deploymentManager.GetDeploymentScriptContent();
 
                 if (deploymentScriptContent == null)
                 {
-                    throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.NotFound, "Operation only supported if not using a custom deployment script"));
+                    return NotFound("Operation only supported if not using a custom deployment script");
                 }
 
-                HttpResponseMessage response = Request.CreateResponse();
                 // CORE TODO PushStreamContent (ZipStreamContent's parent class) no longer exists because we now have Response.Body.
                 // Instead of creating a "content" object, just write to the body.
+
+                /*HttpResponseMessage response = Request.CreateResponse();
                 response.Content = ZipStreamContent.Create("deploymentscript.zip", _tracer, zip =>
                 {
                     // Add deploy.cmd to zip file
@@ -528,13 +560,14 @@ namespace Kudu.Services.Deployment
                     zip.AddFile(DeploymentSettingsProvider.DeployConfigFile, "[config]\ncommand = {0}\n".FormatInvariant(DeploymentManager.DeploymentScriptFileName));
                 });
 
-                return response;
+                return response;*/
+                throw new NotImplementedException();
             }
         }
 
-        private EntityTagHeaderValue GetCurrentEtag(HttpRequestMessage request)
+        private EntityTagHeaderValue GetCurrentEtag(HttpRequest request)
         {
-            return new EntityTagHeaderValue(String.Format("\"{0:x}\"", request.RequestUri.PathAndQuery.GetHashCode() ^ _status.LastModifiedTime.Ticks));
+            return new EntityTagHeaderValue(String.Format("\"{0:x}\"", new Uri(request.GetDisplayUrl()).PathAndQuery.GetHashCode() ^ _status.LastModifiedTime.Ticks));
         }
 
         private static bool EtagEquals(HttpRequest request, EntityTagHeaderValue currentEtag)
@@ -557,12 +590,11 @@ namespace Kudu.Services.Deployment
             return false;
         }
 
-        // CORE TODO I don't think the request param is needed anymore since we now use capital-r Request (HttpRequest)
-        private IEnumerable<DeployResult> GetResults(HttpRequestMessage request)
+        private IEnumerable<DeployResult> GetResults(HttpRequest request)
         {
             foreach (var result in _deploymentManager.GetResults())
             {
-                Uri baseUri = kUriHelper.MakeRelative(kUriHelper.GetBaseUri(Request), new Uri(Request.GetDisplayUrl()).AbsolutePath);
+                Uri baseUri = kUriHelper.MakeRelative(kUriHelper.GetBaseUri(request), new Uri(Request.GetDisplayUrl()).AbsolutePath);
                 result.Url = kUriHelper.MakeRelative(baseUri, result.Id);
                 result.LogUrl = kUriHelper.MakeRelative(baseUri, result.Id + "/log");
                 yield return result;

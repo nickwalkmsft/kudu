@@ -42,12 +42,18 @@ namespace Kudu.Core.Hooks
         public WebHooksManager(
             ITracer tracer,
             IEnvironment environment,
-            //IOperationLock hooksLock
             IDictionary<string, IOperationLock> namedLocks)
+            : this(tracer, environment, namedLocks["hooks"])
+        { }
+
+        public WebHooksManager(
+            ITracer tracer,
+            IEnvironment environment,
+            IOperationLock hooksLock)
         {
             _tracer = tracer;
             _environment = environment;
-            _hooksLock = namedLocks["hooks"];
+            _hooksLock = hooksLock;
 
             _hooksFilePath = Path.Combine(_environment.DeploymentsPath, HooksFileName);
         }
