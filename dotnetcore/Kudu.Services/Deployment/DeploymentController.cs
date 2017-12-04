@@ -396,7 +396,7 @@ namespace Kudu.Services.Deployment
             // CORE TODO Make sure this works properly
             // return etag
             //response.Headers.ETag = currentEtag;
-            Response.Headers.Add("ETag", currentEtag.Tag.Value);
+            Response.GetTypedHeaders().ETag = currentEtag;
 
             return result;
         }
@@ -473,7 +473,7 @@ namespace Kudu.Services.Deployment
                 DeployResult pending;
                 if (IsLatestPendingDeployment(ref id, out pending))
                 {
-                    Response.Headers["Location"] = Request.GetDisplayUrl();
+                    Response.GetTypedHeaders().Location = new Uri(Request.GetDisplayUrl());
                     return Accepted(ArmUtils.AddEnvelopeOnArmRequest(pending, Request));
                 }
 
@@ -572,9 +572,8 @@ namespace Kudu.Services.Deployment
 
         private static bool EtagEquals(HttpRequest request, EntityTagHeaderValue currentEtag)
         {
-            // CORE TODO Double check this... there is no longer a prebuilt implementation for IfNoneMatch, so I changed to use EntityTagHeaderValue
-            // from Microsoft.Net.Http (instead of System.Net.Http) and built this
-            // based on the response caching middleware's implementation, leaving out the * match. See
+            // CORE TODO Double check this... before I found GetTypedHeaders, I didn't think there was a typed implementation of the IfNoneMatch header
+            // anymore, so I reimplemented based on the response caching middleware's implementation, leaving out the * match. See
             // https://github.com/aspnet/ResponseCaching/blob/52e8ffefb9b22c7c591aec15845baf07ed99356c/src/Microsoft.AspNetCore.ResponseCaching/ResponseCachingMiddleware.cs#L454-L478
 
             var ifNoneMatchHeader = request.Headers["If-None-Match"];
