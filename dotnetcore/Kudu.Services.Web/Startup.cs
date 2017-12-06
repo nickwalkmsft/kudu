@@ -143,6 +143,17 @@ namespace Kudu.Services.Web
 
             // Git Servicehook Parsers
             services.AddScoped<IServiceHookHandler, GenericHandler>();
+            services.AddScoped<IServiceHookHandler, GitHubHandler>();
+            services.AddScoped<IServiceHookHandler, BitbucketHandler>();
+            services.AddScoped<IServiceHookHandler, BitbucketHandlerV2>();
+            services.AddScoped<IServiceHookHandler, DropboxHandler>();
+            services.AddScoped<IServiceHookHandler, CodePlexHandler>();
+            services.AddScoped<IServiceHookHandler, CodebaseHqHandler>();
+            services.AddScoped<IServiceHookHandler, GitlabHqHandler>();
+            services.AddScoped<IServiceHookHandler, GitHubCompatHandler>();
+            services.AddScoped<IServiceHookHandler, KilnHgHandler>();
+            services.AddScoped<IServiceHookHandler, VSOHandler>();
+            services.AddScoped<IServiceHookHandler, OneDriveHandler>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

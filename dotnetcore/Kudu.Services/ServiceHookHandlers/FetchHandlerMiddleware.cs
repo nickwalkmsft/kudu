@@ -6,7 +6,6 @@ using Kudu.Services.Infrastructure;
 using Kudu.Services.ServiceHookHandlers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -17,7 +16,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Kudu.Services.Deployment
+namespace Kudu.Services
 {
     public class FetchHandlerMiddleware
     {
