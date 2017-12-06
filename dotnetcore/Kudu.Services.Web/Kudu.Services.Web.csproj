@@ -17,4 +17,14 @@
   <ItemGroup>
     <Folder Include="Tracing\" />
   </ItemGroup>
+  <!-- CORE TODO Lots of work to do here and in other .csproj files. Note we use AfterTargets="Build" now
+  instead of Name="AfterBuild", and the paths to the nuget packages have changed" -->
+  <Target Name="After-Build" AfterTargets="Build">
+    <Message Text="Running post build events" Importance="High" />
+    <ItemGroup>
+      <ScriptFilesToCopy Include="$(NuGetPackageRoot)KuduHandles\**\KuduHandles.exe" />
+      <ScriptFilesToCopy Include="$(NuGetPackageRoot)KuduSync.NET\**\tools\*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(ScriptFilesToCopy)" DestinationFolder="$(TargetDir)\Scripts" SkipUnchangedFiles="true" />
+  </Target>
 </Project>

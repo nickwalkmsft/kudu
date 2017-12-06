@@ -27,6 +27,9 @@ using Kudu.Core.Deployment.Generator;
 using Kudu.Core.Hooks;
 using Kudu.Contracts.SourceControl;
 using Kudu.Core.SourceControl;
+using Kudu.Services.ServiceHookHandlers;
+using Kudu.Services.Deployment;
+using Microsoft.Extensions.PlatformAbstractions;
 
 namespace Kudu.Services.Web
 {
@@ -57,6 +60,9 @@ namespace Kudu.Services.Web
             EnsureHomeEnvironmentVariable();
 
             IEnvironment environment = GetEnvironment();
+
+            // Add various folders that never change to the process path. All child processes will inherit
+            PrependFoldersToPath(environment);
 
 
             // General
@@ -130,9 +136,13 @@ namespace Kudu.Services.Web
             services.AddScoped<ILogger>(sp => GetLogger());
 
             services.AddScoped<IDeploymentManager, DeploymentManager>();
+            services.AddScoped<IFetchDeploymentManager, FetchDeploymentManager>();
 
             services.AddScoped<IRepositoryFactory>(sp => _deploymentLock.RepositoryFactory = new RepositoryFactory(
                 sp.GetRequiredService<IEnvironment>(), sp.GetRequiredService<IDeploymentSettingsManager>(), sp.GetRequiredService<ITraceFactory>()));
+
+            // Git Servicehook Parsers
+            services.AddScoped<IServiceHookHandler, GenericHandler>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -148,6 +158,9 @@ namespace Kudu.Services.Web
                 // CORE TODO
                 app.UseExceptionHandler("/Error");
             }
+
+            // Fetch hook
+            app.Map("/deploy", appBranch => appBranch.RunFetchHandler());
 
             app.UseStaticFiles();
 
@@ -193,9 +206,7 @@ namespace Kudu.Services.Web
             string root = PathResolver.ResolveRootPath();
             string siteRoot = Path.Combine(root, Constants.SiteFolder);
             string repositoryPath = Path.Combine(siteRoot, settings == null ? Constants.RepositoryPath : settings.GetRepositoryPath());
-            // CORE TODO Not sure how to do this
-            //string binPath = HttpRuntime.BinDirectory;
-            string binPath = "bin";
+            string binPath = PlatformServices.Default.Application.ApplicationBasePath;
             string requestId = httpContext?.Request.GetRequestId();
             string siteRetrictedJwt = httpContext?.Request.GetSiteRetrictedJwt();
             // CORE TODO Environment now requires an HttpContextAccessor, which I have set to null here
@@ -204,7 +215,8 @@ namespace Kudu.Services.Web
 
         private static void EnsureHomeEnvironmentVariable()
         {
-            // CORE TODO Hard-coding this for now while exploring
+            // CORE TODO Hard-coding this for now while exploring. Have a look at what
+            // PlatformServices.Default and the injected IHostingEnvironment have at runtime.
             System.Environment.SetEnvironmentVariable("HOME", @"G:\kudu-debug");
 
             /*
@@ -251,5 +263,29 @@ namespace Kudu.Services.Web
             return NullLogger.Instance;
         }
         */
+
+        private static void PrependFoldersToPath(IEnvironment environment)
+        {
+            List<string> folders = PathUtilityFactory.Instance.GetPathFolders(environment);
+
+            string path = System.Environment.GetEnvironmentVariable("PATH");
+            string additionalPaths = String.Join(Path.PathSeparator.ToString(), folders);
+
+            // Make sure we haven't already added them. This can happen if the Kudu appdomain restart (since it's still same process)
+            if (!path.Contains(additionalPaths))
+            {
+                path = additionalPaths + Path.PathSeparator + path;
+
+                // PHP 7 was mistakenly added to the path unconditionally on Azure. To work around, if we detect
+                // some PHP v5.x anywhere on the path, we yank the unwanted PHP 7
+                // TODO: remove once the issue is fixed on Azure
+                if (path.Contains(@"PHP\v5"))
+                {
+                    path = path.Replace(@"D:\Program Files (x86)\PHP\v7.0" + Path.PathSeparator, String.Empty);
+                }
+
+                System.Environment.SetEnvironmentVariable("PATH", path);
+            }
+        }
     }
 }
