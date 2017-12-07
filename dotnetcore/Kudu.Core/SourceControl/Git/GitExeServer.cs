@@ -37,6 +37,8 @@ namespace Kudu.Core.SourceControl.Git
             _gitExe.EnvironmentVariables[Constants.TraceFileEnvKey] = logFileEnv;
 
             // Setup the deployment environment variable to be used by the post receive hook
+            // CORE TODO Get another look at these, I doubt they're right. I know that the kudu exe
+            // is now a dll and needs to be run with dotnet.
             _gitExe.EnvironmentVariables[KnownEnvironment.EXEPATH] = deploymentEnvironment.ExePath;
             _gitExe.EnvironmentVariables[KnownEnvironment.APPPATH] = deploymentEnvironment.ApplicationPath;
             _gitExe.EnvironmentVariables[KnownEnvironment.MSBUILD] = deploymentEnvironment.MSBuildExtensionsPath;

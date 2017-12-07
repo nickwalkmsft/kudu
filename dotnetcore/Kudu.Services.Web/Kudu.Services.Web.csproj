@@ -21,6 +21,7 @@
   instead of Name="AfterBuild", and the paths to the nuget packages have changed" -->
   <Target Name="After-Build" AfterTargets="Build">
     <Message Text="Running post build events" Importance="High" />
+    <Copy SourceFiles="$(SolutionDir)Kudu.Console\bin\$(ConfigurationName)\netcoreapp2.0\kudu.dll" DestinationFolder="$(TargetDir)" SkipUnchangedFiles="true" />
     <ItemGroup>
       <ScriptFilesToCopy Include="$(NuGetPackageRoot)KuduHandles\**\KuduHandles.exe" />
       <ScriptFilesToCopy Include="$(NuGetPackageRoot)KuduSync.NET\**\tools\*" />

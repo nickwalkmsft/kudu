@@ -30,6 +30,8 @@ using Kudu.Core.SourceControl;
 using Kudu.Services.ServiceHookHandlers;
 using Kudu.Services.Deployment;
 using Microsoft.Extensions.PlatformAbstractions;
+using Kudu.Core.SourceControl.Git;
+using Kudu.Services.Web.Services;
 
 namespace Kudu.Services.Web
 {
@@ -54,6 +56,7 @@ namespace Kudu.Services.Web
             var serverConfiguration = new ServerConfiguration();
 
             // CORE TODO This is new. See if over time we can refactor away the need for this?
+            // It's kind of a quick hack/compat shim
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             // Make sure %HOME% is correctly set
@@ -61,19 +64,19 @@ namespace Kudu.Services.Web
 
             IEnvironment environment = GetEnvironment();
 
+            EnsureDotNetCoreEnvironmentVariable(environment);
+
             // Add various folders that never change to the process path. All child processes will inherit
             PrependFoldersToPath(environment);
 
+            // Per request environment
+            services.AddScoped<IEnvironment>(sp => GetEnvironment(sp.GetRequiredService<IDeploymentSettingsManager>(), sp.GetRequiredService<IHttpContextAccessor>().HttpContext));
 
             // General
             services.AddSingleton<IServerConfiguration>(serverConfiguration);
 
             // CORE TODO Looks like this doesn't ever actually do anything, can refactor out?
             services.AddSingleton<IBuildPropertyProvider>(new BuildPropertyProvider());
-
-
-            // Per request environment
-            services.AddScoped<IEnvironment>(sp => GetEnvironment(sp.GetRequiredService<IDeploymentSettingsManager>(), sp.GetRequiredService<IHttpContextAccessor>().HttpContext));
 
             // CORE TODO We always use a null tracer for now
             var traceFactory = new TracerFactory(() => NullTracer.Instance);
@@ -141,6 +144,19 @@ namespace Kudu.Services.Web
             services.AddScoped<IRepositoryFactory>(sp => _deploymentLock.RepositoryFactory = new RepositoryFactory(
                 sp.GetRequiredService<IEnvironment>(), sp.GetRequiredService<IDeploymentSettingsManager>(), sp.GetRequiredService<ITraceFactory>()));
 
+            // Git server
+            services.AddTransient<IDeploymentEnvironment, DeploymentEnvironment>();
+
+            services.AddScoped<IGitServer>(sp =>
+                new GitExeServer(
+                    sp.GetRequiredService<IEnvironment>(),
+                    _deploymentLock,
+                    GetRequestTraceFile(sp),
+                    sp.GetRequiredService<IRepositoryFactory>(),
+                    sp.GetRequiredService<IDeploymentEnvironment>(),
+                    sp.GetRequiredService<IDeploymentSettingsManager>(),
+                    sp.GetRequiredService<ITraceFactory>()));
+
             // Git Servicehook Parsers
             services.AddScoped<IServiceHookHandler, GenericHandler>();
             services.AddScoped<IServiceHookHandler, GitHubHandler>();
@@ -177,9 +193,16 @@ namespace Kudu.Services.Web
 
             app.UseMvc(routes =>
             {
+                // CORE TODO Default route needed?
                 routes.MapRoute(
                     name: "default",
                     template: "{controller}/{action=Index}/{id?}");
+
+                var configuration = app.ApplicationServices.GetRequiredService<IServerConfiguration>();
+
+                // Git Service
+                routes.MapRoute("git-info-refs-root", "info/refs", new { controller = "InfoRefs", action = "Execute" });
+                routes.MapRoute("git-info-refs", configuration.GitServerRoot + "/info/refs", new { controller = "InfoRefs", action = "Execute" });
 
                 // Scm (deployment repository)
                 routes.MapHttpRouteDual("scm-info", "scm/info", new { controller = "LiveScm", action = "GetRepositoryInfo" });
@@ -217,6 +240,7 @@ namespace Kudu.Services.Web
             string root = PathResolver.ResolveRootPath();
             string siteRoot = Path.Combine(root, Constants.SiteFolder);
             string repositoryPath = Path.Combine(siteRoot, settings == null ? Constants.RepositoryPath : settings.GetRepositoryPath());
+            // CORE TODO see if we can refactor out PlatformServices as high up as we can?
             string binPath = PlatformServices.Default.Application.ApplicationBasePath;
             string requestId = httpContext?.Request.GetRequestId();
             string siteRetrictedJwt = httpContext?.Request.GetSiteRetrictedJwt();
@@ -297,6 +321,50 @@ namespace Kudu.Services.Web
 
                 System.Environment.SetEnvironmentVariable("PATH", path);
             }
+        }
+
+        private static void EnsureDotNetCoreEnvironmentVariable(IEnvironment environment)
+        {
+            // Skip this as it causes huge files to be downloaded to the temp folder
+            SetEnvironmentVariableIfNotYetSet("DOTNET_SKIP_FIRST_TIME_EXPERIENCE", "true");
+
+            // Don't download xml comments, as they're large and provide no benefits outside of a dev machine
+            SetEnvironmentVariableIfNotYetSet("NUGET_XMLDOC_MODE", "skip");
+
+            if (Core.Environment.IsAzureEnvironment())
+            {
+                // On Azure, restore nuget packages to d:\home\.nuget so they're persistent. It also helps
+                // work around https://github.com/projectkudu/kudu/issues/2056.
+                // Note that this only applies to project.json scenarios (not packages.config)
+                SetEnvironmentVariableIfNotYetSet("NUGET_PACKAGES", Path.Combine(environment.RootPath, ".nuget"));
+
+                // Set the telemetry environment variable
+                SetEnvironmentVariableIfNotYetSet("DOTNET_CLI_TELEMETRY_PROFILE", "AzureKudu");
+            }
+            else
+            {
+                // Set it slightly differently if outside of Azure to differentiate
+                SetEnvironmentVariableIfNotYetSet("DOTNET_CLI_TELEMETRY_PROFILE", "Kudu");
+            }
+        }
+
+        private static void SetEnvironmentVariableIfNotYetSet(string name, string value)
+        {
+            if (System.Environment.GetEnvironmentVariable(name) == null)
+            {
+                System.Environment.SetEnvironmentVariable(name, value);
+            }
+        }
+        private static string GetRequestTraceFile(IServiceProvider serviceProvider)
+        {
+            TraceLevel level = serviceProvider.GetRequiredService<IDeploymentSettingsManager>().GetTraceLevel();
+            // CORE TODO Need TraceServices implementation
+            //if (level > TraceLevel.Off)
+            //{
+            //    return TraceServices.CurrentRequestTraceFile;
+            //}
+
+            return null;
         }
     }
 }
