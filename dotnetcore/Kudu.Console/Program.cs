@@ -23,6 +23,7 @@ using Kudu.Core.SourceControl.Git;
 using Kudu.Core.Tracing;
 using XmlSettings;
 using Microsoft.AspNetCore.Http;
+using System.Reflection;
 
 namespace Kudu.Console
 {
@@ -258,7 +259,9 @@ namespace Kudu.Console
             string binPath = System.Environment.GetEnvironmentVariable("SCM_BIN_PATH");
             if (string.IsNullOrWhiteSpace(binPath))
             {
-                binPath = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
+                // CORE TODO Double check. Process.GetCurrentProcess() always gets the dotnet.exe process,
+                // so changed to Assembly.GetEntryAssembly().Location
+                binPath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
             }
 
             // CORE TODO Handing in a null IHttpContextAccessor again

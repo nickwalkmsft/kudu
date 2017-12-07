@@ -11,8 +11,9 @@ namespace Kudu.Services.Web.Services
 
         // CORE TODO Replaced instances of $"{HttpRuntime.AppDomainPath}/bin" with
         // PlatformServices.Default.Application.ApplicationBasePath, and "kudu.exe"
-        // with "kudu.dll", since Kudu.Console is now compiled as framework-dependent and needs
-        // to be run with dotnet. Can we refactor use of PlatformServices up higher?
+        // with "kudu.dll", since Kudu.Console is now a framework-dependent
+        // Core app (the post-receive hook script has been modified to include "dotnet".
+        // Can we refactor use of PlatformServices up higher?
         public DeploymentEnvironment(IEnvironment environment)
         {
             _environment = environment;

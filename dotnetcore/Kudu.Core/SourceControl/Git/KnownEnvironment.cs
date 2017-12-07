@@ -12,7 +12,9 @@ namespace Kudu.Core.SourceControl.Git
         public const string DEPLOYER = "KUDU_DEPLOYER";
 
         // Command to launch the post receive hook
-        public static string KUDUCOMMAND = "\"$" + EXEPATH + "\" " +
+        // CORE TODO modified the script to run "dotnet," assuming EXEPATH points
+        // to a framework-dependent Core app.
+        public static string KUDUCOMMAND = "dotnet \"$" + EXEPATH + "\" " +
                                            "\"$" + APPPATH + "\" " +
                                            "\"$" + MSBUILD + "\" " +
                                            "\"$" + DEPLOYER + "\"";

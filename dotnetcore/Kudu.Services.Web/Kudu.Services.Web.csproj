@@ -21,7 +21,17 @@
   instead of Name="AfterBuild", and the paths to the nuget packages have changed" -->
   <Target Name="After-Build" AfterTargets="Build">
     <Message Text="Running post build events" Importance="High" />
-    <Copy SourceFiles="$(SolutionDir)Kudu.Console\bin\$(ConfigurationName)\netcoreapp2.0\kudu.dll" DestinationFolder="$(TargetDir)" SkipUnchangedFiles="true" />
+    <ItemGroup>
+      <KuduConsoleDependencies Include="$(SolutionDir)Kudu.Console\bin\$(ConfigurationName)\**\kudu.dll" />
+      <KuduConsoleDependencies Include="$(SolutionDir)Kudu.Console\bin\$(ConfigurationName)\netcoreapp2.0\kudu.runtimeconfig.json" />
+      <!-- Quick hack for dependencies needed for Kudu.Console run from the app root. This lets dependencies be resolved
+           from my local nuget packages folders. I think the app needs to be published instead. -->
+      <KuduConsoleDependencies Include="$(SolutionDir)Kudu.Console\bin\$(ConfigurationName)\netcoreapp2.0\kudu.runtimeconfig.dev.json" />
+      <KuduConsoleDependencies Include="$(SolutionDir)Kudu.Console\bin\$(ConfigurationName)\netcoreapp2.0\kudu.deps.json" />
+      <!--<KuduConsoleDependencies Include="$(NuGetPackageRoot)XmlSettings\**\XmlSettings.dll" />
+      <KuduConsoleDependencies Include="$(NuGetPackageRoot)system.configuration.configurationmanager\**\netstandard2.0\System.Configuration.ConfigurationManager.dll" />-->
+    </ItemGroup>
+    <Copy SourceFiles="@(KuduConsoleDependencies)" DestinationFolder="$(TargetDir)" SkipUnchangedFiles="true" />
     <ItemGroup>
       <ScriptFilesToCopy Include="$(NuGetPackageRoot)KuduHandles\**\KuduHandles.exe" />
       <ScriptFilesToCopy Include="$(NuGetPackageRoot)KuduSync.NET\**\tools\*" />
