@@ -22,7 +22,6 @@
 using System;
 using System.Globalization;
 using System.IO;
-using System.Net.Http;
 using Microsoft.Net.Http.Headers;
 using Kudu.Contracts.Infrastructure;
 using Kudu.Contracts.Settings;
@@ -36,8 +35,6 @@ using Kudu.Core.Tracing;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using System.Text;
-using Microsoft.AspNetCore.Http.Extensions;
 
 namespace Kudu.Services.GitServer
 {

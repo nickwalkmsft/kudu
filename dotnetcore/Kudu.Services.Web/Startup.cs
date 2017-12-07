@@ -32,6 +32,7 @@ using Kudu.Services.Deployment;
 using Microsoft.Extensions.PlatformAbstractions;
 using Kudu.Core.SourceControl.Git;
 using Kudu.Services.Web.Services;
+using Kudu.Services.GitServer;
 
 namespace Kudu.Services.Web
 {
@@ -106,7 +107,7 @@ namespace Kudu.Services.Web
                 { "status", statusLock }, // DeploymentStatusManager
                 { "ssh", sshKeyLock }, // SSHKeyController
                 { "hooks", hooksLock }, // WebHooksManager
-                { "deployment", _deploymentLock } // DeploymentController, DeploymentManager, SettingsController, FetchDeploymentManager, LiveScmController
+                { "deployment", _deploymentLock } // DeploymentController, DeploymentManager, SettingsController, FetchDeploymentManager, LiveScmController, ReceivePackHandlerMiddleware
             };
 
             services.AddSingleton<IDictionary<string, IOperationLock>>(namedLocks);
@@ -143,7 +144,7 @@ namespace Kudu.Services.Web
 
             services.AddScoped<IRepositoryFactory>(sp => _deploymentLock.RepositoryFactory = new RepositoryFactory(
                 sp.GetRequiredService<IEnvironment>(), sp.GetRequiredService<IDeploymentSettingsManager>(), sp.GetRequiredService<ITraceFactory>()));
-
+            
             // Git server
             services.AddTransient<IDeploymentEnvironment, DeploymentEnvironment>();
 
@@ -185,9 +186,19 @@ namespace Kudu.Services.Web
                 // CORE TODO
                 app.UseExceptionHandler("/Error");
             }
+            
+            var configuration = app.ApplicationServices.GetRequiredService<IServerConfiguration>();
+            
+            // CORE TODO concept of "deprecation" in routes for traces
 
             // Fetch hook
             app.Map("/deploy", appBranch => appBranch.RunFetchHandler());
+
+            // Push url
+            foreach (var url in new[] { "/git-receive-pack", $"/{configuration.GitServerRoot}/git-receive-pack" })
+            {
+                app.Map(url, appBranch => appBranch.RunReceivePackHandler());
+            };
 
             app.UseStaticFiles();
 
@@ -197,8 +208,6 @@ namespace Kudu.Services.Web
                 routes.MapRoute(
                     name: "default",
                     template: "{controller}/{action=Index}/{id?}");
-
-                var configuration = app.ApplicationServices.GetRequiredService<IServerConfiguration>();
 
                 // Git Service
                 routes.MapRoute("git-info-refs-root", "info/refs", new { controller = "InfoRefs", action = "Execute" });
