@@ -188,16 +188,22 @@ namespace Kudu.Services.Web
             }
             
             var configuration = app.ApplicationServices.GetRequiredService<IServerConfiguration>();
-            
-            // CORE TODO concept of "deprecation" in routes for traces
 
-            // Fetch hook
-            app.Map("/deploy", appBranch => appBranch.RunFetchHandler());
+            // CORE TODO concept of "deprecation" in routes for traces
 
             // Push url
             foreach (var url in new[] { "/git-receive-pack", $"/{configuration.GitServerRoot}/git-receive-pack" })
             {
                 app.Map(url, appBranch => appBranch.RunReceivePackHandler());
+            };
+
+            // Fetch hook
+            app.Map("/deploy", appBranch => appBranch.RunFetchHandler());
+
+            // Clone url
+            foreach (var url in new[] { "/git-upload-pack", $"/{configuration.GitServerRoot}/git-upload-pack" })
+            {
+                app.Map(url, appBranch => appBranch.RunUploadPackHandler());
             };
 
             app.UseStaticFiles();
