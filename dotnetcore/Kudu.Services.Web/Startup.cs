@@ -267,7 +267,17 @@ namespace Kudu.Services.Web
         {
             // CORE TODO Hard-coding this for now while exploring. Have a look at what
             // PlatformServices.Default and the injected IHostingEnvironment have at runtime.
-            System.Environment.SetEnvironmentVariable("HOME", @"G:\kudu-debug");
+            if (!Directory.Exists(System.Environment.ExpandEnvironmentVariables(@"%HOME%")))
+            {
+                if (OSDetector.IsOnWindows())
+                {
+                    System.Environment.SetEnvironmentVariable("HOME", @"G:\kudu-debug");
+                }
+                else
+                {
+                    System.Environment.SetEnvironmentVariable("HOME", "/home");
+                }
+            }
 
             /*
             // If MapPath("/_app") returns a valid folder, set %HOME% to that, regardless of

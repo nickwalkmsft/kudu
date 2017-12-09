@@ -192,7 +192,6 @@ fi" + "\n";
                     }
                     else
                     {
-                        sb.AppendLine("/usr/bin/mono " + KnownEnvironment.KUDUCOMMAND);
                         FileSystemHelpers.WriteAllText(PostReceiveHookPath, sb.ToString().Replace("\r\n", "\n"));
                         using (tracer.Step("Non-Windows enviroment, granting 755 permission to post-receive hook file"))
                         {
