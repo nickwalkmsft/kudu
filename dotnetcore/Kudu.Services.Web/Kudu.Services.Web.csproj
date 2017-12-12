@@ -11,55 +11,36 @@
     <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Kudu.Console\Kudu.Console.csproj" />
     <ProjectReference Include="..\Kudu.Core\Kudu.Core.csproj" />
     <ProjectReference Include="..\Kudu.Services\Kudu.Services.csproj" />
-  </ItemGroup>
-
-  <!-- TODO Publish Kudu.Console as a separate app and copy in the whole publish directory as a subdir? Or just keep copying in these files? -->
-  <!-- TODO Regardless, convert to ContentWithTargetPath. Note that this here is the reason that this project takes a dependency
-       on Kudu.Console, not because it actually uses it. -->
-  <ItemGroup>
-    <KuduConsoleDependencies Include="$(ProjectDir)\..\Kudu.Console\bin\$(ConfigurationName)\**\kudu.dll" />
-    <KuduConsoleDependencies Include="$(ProjectDir)\..\Kudu.Console\bin\$(ConfigurationName)\netcoreapp2.0\kudu.runtimeconfig.json" />
-    <!-- Quick hack for dependencies needed for Kudu.Console run from the app root. This lets dependencies be resolved
-           from my local nuget packages folders. I think the app should be published instead. -->
-    <KuduConsoleDependencies Include="$(ProjectDir)\..\Kudu.Console\bin\$(ConfigurationName)\netcoreapp2.0\kudu.runtimeconfig.dev.json" />
-    <KuduConsoleDependencies Include="$(ProjectDir)\..\Kudu.Console\bin\$(ConfigurationName)\netcoreapp2.0\kudu.deps.json" />
-    <!--<KuduConsoleDependencies Include="$(NuGetPackageRoot)XmlSettings\**\XmlSettings.dll" />
-      <KuduConsoleDependencies Include="$(NuGetPackageRoot)system.configuration.configurationmanager\**\netstandard2.0\System.Configuration.ConfigurationManager.dll" />-->
   </ItemGroup>
   
   <!-- It's much easier to include these as content so they automatically get handled for both the build and publish workflows,
        as opposed to handling them as explicit post-build and post-publish copy activities. ContentWithTargetPath is an item type not
        known to Visual Studio that allows you to specify a target. -->
   <ItemGroup>
+    <!-- Odds and ends for the Scripts\ directory -->
     <ContentWithTargetPath Include="$(NuGetPackageRoot)KuduSync.NET\**\tools\*" TargetPath="Scripts\%(FileName)%(Extension)" CopyToOutputDirectory="Always" />
     <ContentWithTargetPath Include="$(NuGetPackageRoot)KuduHandles\**\KuduHandles.exe" TargetPath="Scripts\KuduHandles.exe" CopyToOutputDirectory="Always" />
     <ContentWithTargetPath Include="..\..\Build\nuget.exe" TargetPath="Scripts\nuget.exe" CopyToOutputDirectory="Always" />
+
+    <!-- node_modules, created below with updateNodeModules -->
     <ContentWithTargetPath Include="node_modules\**\*" TargetPath="%(Identity)" CopyToOutputDirectory="Always" />
+    
+    <!-- The published Kudu.Console app -->
+    <ContentWithTargetPath Include="..\Kudu.Console\bin\$(ConfigurationName)\netcoreapp2.0\publish\**\*" TargetPath="KuduConsole\%(RecursiveDir)%(FileName)%(Extension)" CopyToOutputDirectory="Always" />
   </ItemGroup>
 
   <!-- TODO this used to have a "BuildOutputsUpdated" condition that used compile timestamps. Not sure if they're still available.
-       Also running it as before build because I think it needs to be present before Build in order for the above ContentWithTargetPath item
-       to pick it up. -->
-  <Target Name="UpdateNodeModules" BeforeTargets="Build">
+       Running these as BeforeTargets="CopyFilesToOutputDirectory" because they need to be present by then in order for the above
+       ContentWithTargetPath items to pick it up. -->
+  <!-- Run updateNodeModules to install kuduscript -->
+  <Target Name="UpdateNodeModules" BeforeTargets="CopyFilesToOutputDirectory">
     <Exec Command="&quot;$(ProjectDir)\updateNodeModules.cmd&quot; &quot;$(ProjectDir)&quot;" />
   </Target>
-  
-  <!-- CORE TODO Lots of work to do here and in other .csproj files. Note we use AfterTargets="Build" now
-  instead of Name="AfterBuild", and the paths to the nuget packages have changed" -->
-  <!--<Target Name="After-Build" AfterTargets="Build">
-    <Message Text="Running post build events @(KuduConsoleDependencies)" Importance="High" />
-    <Copy SourceFiles="@(KuduConsoleDependencies)" DestinationFolder="$(TargetDir)" SkipUnchangedFiles="true" />
-    <ItemGroup>
-      <ScriptFilesToCopy Include="$(NuGetPackageRoot)KuduSync.NET\**\tools\*" />
-    </ItemGroup>
-    <Copy SourceFiles="@(ScriptFilesToCopy)" DestinationFolder="$(TargetDir)\Scripts" SkipUnchangedFiles="true" />
+
+  <!-- Publish Kudu.Console to get a runnable application -->
+  <Target Name="PublishKuduConsole" BeforeTargets="CopyFilesToOutputDirectory">
+    <MSBuild Projects="..\Kudu.Console\Kudu.Console.csproj" Targets="Publish" Properties="Configuration=$(ConfigurationName)" />
   </Target>
-  
-  <Target Name="After-Publish" AfterTargets="Publish">
-    <Message Importance="High" Text="My afterpublish task @(KuduConsoleDependencies)" />
-    <Copy SourceFiles="@(TargetDir)" DestinationFolder="$(PublishDir)" SkipUnchangedFiles="true" />
-  </Target>-->
 </Project>
