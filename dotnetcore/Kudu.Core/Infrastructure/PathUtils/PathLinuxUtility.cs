@@ -38,7 +38,7 @@ namespace Kudu.Core.Infrastructure
 
         internal override string ResolveMSBuildPath()
         {
-            return ResolveRelativePathToUsrBin("xbuild", "xbuild");
+            return null;
         }
 
         internal override string ResolveNpmGlobalPrefix()

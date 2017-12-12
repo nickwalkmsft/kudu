@@ -27,4 +27,4 @@ Setup/WebPiCmdSetup.log
 Kudu.Services.Web/node_modules/
 .vs/
 Build/7zip/
-/dotnetcore/Kudu.Services.Web/mypublish
+/dotnetcore/Kudu.Services.Web/node_modules

@@ -11,6 +11,16 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="Scripts\deploy_webjobs.cmd" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Scripts\*">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="LibGit2Sharp" Version="0.21.0.176" />
     <PackageReference Include="Mercurial.Net" Version="1.1.1.607" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Extensions" Version="2.0.1" />
