@@ -256,6 +256,7 @@ namespace Kudu.Console
 
             // SCM_BIN_PATH is introduced in Kudu apache config file
             // Provide a way to override Kudu bin path, to resolve issue where we can not find the right Kudu bin path when running on mono
+            // CORE TODO Maybe rename this or something; may not use it anymore
             string binPath = System.Environment.GetEnvironmentVariable("SCM_BIN_PATH");
             if (string.IsNullOrWhiteSpace(binPath))
             {

@@ -185,9 +185,9 @@ fi" + "\n";
                     sb.AppendLine("#!/bin/sh");
                     sb.AppendLine("read i");
                     sb.AppendLine("echo $i > pushinfo");
+                    sb.AppendLine(KnownEnvironment.KUDUCOMMAND);
                     if (OSDetector.IsOnWindows())
                     {
-                        sb.AppendLine(KnownEnvironment.KUDUCOMMAND);
                         FileSystemHelpers.WriteAllText(PostReceiveHookPath, sb.ToString());
                     }
                     else
