@@ -30,6 +30,10 @@
     <!-- The published Kudu.Console app -->
     <ContentWithTargetPath Include="..\Kudu.Console\bin\$(ConfigurationName)\netcoreapp2.0\publish\**\*" TargetPath="KuduConsole\%(RecursiveDir)%(FileName)%(Extension)" CopyToOutputDirectory="Always" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="wwwroot\Content\Styles\" />
+    <Folder Include="wwwroot\Content\Scripts\" />
+  </ItemGroup>
 
   <!-- TODO this used to have a "BuildOutputsUpdated" condition that used compile timestamps. Not sure if they're still available.
        Running these as BeforeTargets="CopyFilesToOutputDirectory" because they need to be present by then in order for the above

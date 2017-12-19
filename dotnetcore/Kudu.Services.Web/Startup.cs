@@ -34,6 +34,7 @@ using Kudu.Core.SourceControl.Git;
 using Kudu.Services.Web.Services;
 using Kudu.Services.GitServer;
 using Kudu.Core.Commands;
+using Newtonsoft.Json.Serialization;
 
 namespace Kudu.Services.Web
 {
@@ -53,7 +54,8 @@ namespace Kudu.Services.Web
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc();
+            services.AddMvc()
+                .AddJsonOptions(options => options.SerializerSettings.ContractResolver = new DefaultContractResolver());
 
             var serverConfiguration = new ServerConfiguration();
 
