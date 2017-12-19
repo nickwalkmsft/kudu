@@ -33,6 +33,7 @@ using Microsoft.Extensions.PlatformAbstractions;
 using Kudu.Core.SourceControl.Git;
 using Kudu.Services.Web.Services;
 using Kudu.Services.GitServer;
+using Kudu.Core.Commands;
 
 namespace Kudu.Services.Web
 {
@@ -171,9 +172,10 @@ namespace Kudu.Services.Web
             services.AddScoped<IServiceHookHandler, KilnHgHandler>();
             services.AddScoped<IServiceHookHandler, VSOHandler>();
             services.AddScoped<IServiceHookHandler, OneDriveHandler>();
+
+            services.AddScoped<ICommandExecutor, CommandExecutor>();
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             if (env.IsDevelopment())
@@ -228,6 +230,9 @@ namespace Kudu.Services.Web
                 routes.MapHttpRouteDual("vfs-get-files", "vfs/{*path}", new { controller = "Vfs", action = "GetItem" }, new { verb = new HttpMethodRouteConstraint("GET", "HEAD") });
                 routes.MapHttpRouteDual("vfs-put-files", "vfs/{*path}", new { controller = "Vfs", action = "PutItem" }, new { verb = new HttpMethodRouteConstraint("PUT") });
                 routes.MapHttpRouteDual("vfs-delete-files", "vfs/{*path}", new { controller = "Vfs", action = "DeleteItem" }, new { verb = new HttpMethodRouteConstraint("DELETE") });
+
+                // Live Command Line
+                routes.MapHttpRouteDual("execute-command", "command", new { controller = "Command", action = "ExecuteCommand" }, new { verb = new HttpMethodRouteConstraint("POST") });
 
                 // Deployments
                 routes.MapHttpRouteDual("all-deployments", "deployments", new { controller = "Deployment", action = "GetDeployResults" }, new { verb = new HttpMethodRouteConstraint("GET") });
