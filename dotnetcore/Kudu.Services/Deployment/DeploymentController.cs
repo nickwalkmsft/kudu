@@ -548,7 +548,7 @@ namespace Kudu.Services.Deployment
                 }
 
                 // CORE TODO PushStreamContent (ZipStreamContent's parent class) no longer exists because we now have Response.Body.
-                // Instead of creating a "content" object, just write to the body.
+                // See new implementation in ZipController.cs
 
                 /*HttpResponseMessage response = Request.CreateResponse();
                 response.Content = ZipStreamContent.Create("deploymentscript.zip", _tracer, zip =>
