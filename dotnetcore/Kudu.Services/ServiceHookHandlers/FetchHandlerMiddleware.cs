@@ -21,8 +21,7 @@ namespace Kudu.Services
     public class FetchHandlerMiddleware
     {
         public FetchHandlerMiddleware(
-            RequestDelegate next,
-            ITracer tracer)
+            RequestDelegate next)
         {
             // next is never used, this middleware is always terminal
         }

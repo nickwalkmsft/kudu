@@ -35,6 +35,7 @@ using Kudu.Services.Web.Services;
 using Kudu.Services.GitServer;
 using Kudu.Core.Commands;
 using Newtonsoft.Json.Serialization;
+using Kudu.Services.Web.Tracing;
 
 namespace Kudu.Services.Web
 {
@@ -57,11 +58,13 @@ namespace Kudu.Services.Web
             services.AddMvc()
                 .AddJsonOptions(options => options.SerializerSettings.ContractResolver = new DefaultContractResolver());
 
+
             var serverConfiguration = new ServerConfiguration();
 
             // CORE TODO This is new. See if over time we can refactor away the need for this?
             // It's kind of a quick hack/compat shim
-            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            var contextAccessor = new HttpContextAccessor();
+            services.AddSingleton<IHttpContextAccessor>(contextAccessor);
 
             // Make sure %HOME% is correctly set
             EnsureHomeEnvironmentVariable();
@@ -82,10 +85,39 @@ namespace Kudu.Services.Web
             // CORE TODO Looks like this doesn't ever actually do anything, can refactor out?
             services.AddSingleton<IBuildPropertyProvider>(new BuildPropertyProvider());
 
-            // CORE TODO We always use a null tracer for now
-            var traceFactory = new TracerFactory(() => NullTracer.Instance);
+            /*
+             * CORE TODO all this business around ITracerFactory/ITracer/GetTracer()/
+             * ILogger needs serious refactoring:
+             * - Names should be changed to make it clearer that ILogger is for deployment
+             * logging and ITracer and friends are for Kudu tracing
+             * - ILogger is a first-class citizen and .NET core. We should be using it (and
+             * not name-colliding with it)
+             * - ITracer vs. ITraceFactory is redundant and confusing.
+             * - All this stuff with funcs and factories and TraceServices is overcomplicated.
+             * TraceServices only serves to confuse stuff now that we're avoiding
+             * HttpContext.Current
+             */
+
+            Func<IServiceProvider, ITracer> resolveTracer = sp => GetTracer(sp);
+            Func<ITracer> createTracerThunk = () => resolveTracer(services.BuildServiceProvider());
+
+            // First try to use the current request profiler if any, otherwise create a new one
+            var traceFactory = new TracerFactory(() => {
+                var sp = services.BuildServiceProvider();
+                var context = sp.GetRequiredService<IHttpContextAccessor>().HttpContext;
+
+                return TraceServices.GetRequestTracer(context) ?? resolveTracer(sp);
+            });
+
+            services.AddScoped<ITracer>(sp =>
+            {
+                var context = sp.GetRequiredService<IHttpContextAccessor>().HttpContext;
+                return TraceServices.GetRequestTracer(context) ?? NullTracer.Instance;
+            });
+
             services.AddSingleton<ITraceFactory>(traceFactory);
-            services.AddSingleton<ITracer>(NullTracer.Instance);
+
+            TraceServices.SetTraceFactory(createTracerThunk);
 
             // Setup the deployment lock
             string lockPath = Path.Combine(environment.SiteRootPath, Constants.LockPath);
@@ -121,8 +153,8 @@ namespace Kudu.Services.Web
             var noContextTraceFactory = new TracerFactory(() => GetTracerWithoutContext(environment, noContextDeploymentsSettingsManager));
             var etwTraceFactory = new TracerFactory(() => new ETWTracer(string.Empty, string.Empty));
 
-            // CORE TODO
-            // TraceServices.TraceLevel = noContextDeploymentsSettingsManager.GetTraceLevel();
+            
+            TraceServices.TraceLevel = noContextDeploymentsSettingsManager.GetTraceLevel();
 
             services.AddTransient<IAnalytics>(sp => new Analytics(sp.GetRequiredService<IDeploymentSettingsManager>(),
                                                                   sp.GetRequiredService<IServerConfiguration>(),
@@ -140,7 +172,7 @@ namespace Kudu.Services.Web
 
             services.AddScoped<IWebHooksManager, WebHooksManager>();
 
-            services.AddScoped<ILogger>(sp => GetLogger());
+            services.AddScoped<ILogger>(sp => GetLogger(sp));
 
             services.AddScoped<IDeploymentManager, DeploymentManager>();
             services.AddScoped<IFetchDeploymentManager, FetchDeploymentManager>();
@@ -190,6 +222,8 @@ namespace Kudu.Services.Web
                 // CORE TODO
                 app.UseExceptionHandler("/Error");
             }
+
+            app.UseTraceMiddleware();
             
             var configuration = app.ApplicationServices.GetRequiredService<IServerConfiguration>();
 
@@ -305,6 +339,22 @@ namespace Kudu.Services.Web
             */
         }
 
+        private static ITracer GetTracer(IServiceProvider serviceProvider)
+        {
+            IEnvironment environment = serviceProvider.GetRequiredService<IEnvironment>();
+            TraceLevel level = serviceProvider.GetRequiredService<IDeploymentSettingsManager>().GetTraceLevel();
+            var contextAccessor = serviceProvider.GetRequiredService<IHttpContextAccessor>();
+            var httpContext = contextAccessor.HttpContext;
+            var requestTraceFile = TraceServices.GetRequestTraceFile(httpContext);
+            if (level > TraceLevel.Off && requestTraceFile != null)
+            {
+                string textPath = Path.Combine(environment.TracePath, requestTraceFile);
+                return new CascadeTracer(new XmlTracer(environment.TracePath, level), new TextTracer(textPath, level), new ETWTracer(environment.RequestId, TraceServices.GetHttpMethod(httpContext)));
+            }
+
+            return NullTracer.Instance;
+        }
+
         private static ITracer GetTracerWithoutContext(IEnvironment environment, IDeploymentSettingsManager settings)
         {
             // when file system has issue, this can throw (environment.TracePath calls EnsureDirectory).
@@ -321,22 +371,21 @@ namespace Kudu.Services.Web
             }) ?? NullTracer.Instance;
         }
 
-        // CORE TODO The original GetLogger is below. Do this later. Always get a null logger for now.
-        private static ILogger GetLogger() => NullLogger.Instance;
-
-        /*
-        private static ILogger GetLogger(IEnvironment environment, IKernel kernel)
+        private static ILogger GetLogger(IServiceProvider serviceProvider)
         {
-            TraceLevel level = kernel.Get<IDeploymentSettingsManager>().GetTraceLevel();
-            if (level > TraceLevel.Off && TraceServices.CurrentRequestTraceFile != null)
+            IEnvironment environment = serviceProvider.GetRequiredService<IEnvironment>();
+            TraceLevel level = serviceProvider.GetRequiredService<IDeploymentSettingsManager>().GetTraceLevel();
+            var contextAccessor = serviceProvider.GetRequiredService<IHttpContextAccessor>();
+            var httpContext = contextAccessor.HttpContext;
+            var requestTraceFile = TraceServices.GetRequestTraceFile(httpContext);
+            if (level > TraceLevel.Off && requestTraceFile != null)
             {
-                string textPath = Path.Combine(environment.DeploymentTracePath, TraceServices.CurrentRequestTraceFile);
+                string textPath = Path.Combine(environment.DeploymentTracePath, requestTraceFile);
                 return new TextLogger(textPath);
             }
 
             return NullLogger.Instance;
         }
-        */
 
         private static void PrependFoldersToPath(IEnvironment environment)
         {
