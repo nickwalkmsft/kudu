@@ -1,0 +1,735 @@
+0 info it worked if it ends with ok
+1 verbose cli [ 'C:\\Program Files\\nodejs\\\\node.exe',
+1 verbose cli   'C:\\Program Files\\nodejs\\node_modules\\npm\\bin\\npm-cli.js',
+1 verbose cli   'install',
+1 verbose cli   'https://github.com/projectkudu/KuduScript/tarball/39c5665a08f2ae50c0f853f5d44f574265ed3118' ]
+2 info using npm@1.4.28
+3 info using node@v0.10.35
+4 verbose node symlink C:\Program Files\nodejs\\node.exe
+5 verbose cache add [ 'https://github.com/projectkudu/KuduScript/tarball/39c5665a08f2ae50c0f853f5d44f574265ed3118',
+5 verbose cache add   null ]
+6 verbose cache add name=undefined spec="https://github.com/projectkudu/KuduScript/tarball/39c5665a08f2ae50c0f853f5d44f574265ed3118" args=["https://github.com/projectkudu/KuduScript/tarball/39c5665a08f2ae50c0f853f5d44f574265ed3118",null]
+7 verbose parsed url { protocol: 'https:',
+7 verbose parsed url   slashes: true,
+7 verbose parsed url   auth: null,
+7 verbose parsed url   host: 'github.com',
+7 verbose parsed url   port: null,
+7 verbose parsed url   hostname: 'github.com',
+7 verbose parsed url   hash: null,
+7 verbose parsed url   search: null,
+7 verbose parsed url   query: null,
+7 verbose parsed url   pathname: '/projectkudu/KuduScript/tarball/39c5665a08f2ae50c0f853f5d44f574265ed3118',
+7 verbose parsed url   path: '/projectkudu/KuduScript/tarball/39c5665a08f2ae50c0f853f5d44f574265ed3118',
+7 verbose parsed url   href: 'https://github.com/projectkudu/KuduScript/tarball/39c5665a08f2ae50c0f853f5d44f574265ed3118' }
+8 silly lockFile 6d3c8a51-08f2ae50c0f853f5d44f574265ed3118 https://github.com/projectkudu/KuduScript/tarball/39c5665a08f2ae50c0f853f5d44f574265ed3118
+9 verbose lock https://github.com/projectkudu/KuduScript/tarball/39c5665a08f2ae50c0f853f5d44f574265ed3118 C:\Users\nickwalk\AppData\Roaming\npm-cache\6d3c8a51-08f2ae50c0f853f5d44f574265ed3118.lock
+10 verbose addRemoteTarball [ 'https://github.com/projectkudu/KuduScript/tarball/39c5665a08f2ae50c0f853f5d44f574265ed3118',
+10 verbose addRemoteTarball   null ]
+11 info retry fetch attempt 1 at 12:17:30
+12 verbose fetch to= C:\Users\nickwalk\AppData\Local\Temp\npm-16724-DwmZTTQ-\github.com\projectkudu\KuduScript\tarball\39c5665a08f2ae50c0f853f5d44f574265ed3118
+13 http GET https://github.com/projectkudu/KuduScript/tarball/39c5665a08f2ae50c0f853f5d44f574265ed3118
+14 http 200 https://github.com/projectkudu/KuduScript/tarball/39c5665a08f2ae50c0f853f5d44f574265ed3118
+15 verbose tar unpack C:\Users\nickwalk\AppData\Local\Temp\npm-16724-DwmZTTQ-\github.com\projectkudu\KuduScript\tarball\39c5665a08f2ae50c0f853f5d44f574265ed3118
+16 silly lockFile dcc42615-0c0f853f5d44f574265ed3118-unpack tar://C:\Users\nickwalk\AppData\Local\Temp\npm-16724-DwmZTTQ-\github.com\projectkudu\KuduScript\tarball\39c5665a08f2ae50c0f853f5d44f574265ed3118-unpack
+17 verbose lock tar://C:\Users\nickwalk\AppData\Local\Temp\npm-16724-DwmZTTQ-\github.com\projectkudu\KuduScript\tarball\39c5665a08f2ae50c0f853f5d44f574265ed3118-unpack C:\Users\nickwalk\AppData\Roaming\npm-cache\dcc42615-0c0f853f5d44f574265ed3118-unpack.lock
+18 silly lockFile 2ccbf55f-08f2ae50c0f853f5d44f574265ed3118 tar://C:\Users\nickwalk\AppData\Local\Temp\npm-16724-DwmZTTQ-\github.com\projectkudu\KuduScript\tarball\39c5665a08f2ae50c0f853f5d44f574265ed3118
+19 verbose lock tar://C:\Users\nickwalk\AppData\Local\Temp\npm-16724-DwmZTTQ-\github.com\projectkudu\KuduScript\tarball\39c5665a08f2ae50c0f853f5d44f574265ed3118 C:\Users\nickwalk\AppData\Roaming\npm-cache\2ccbf55f-08f2ae50c0f853f5d44f574265ed3118.lock
+20 silly gunzTarPerm modes [ '777', '666' ]
+21 silly gunzTarPerm extractEntry
+22 silly gunzTarPerm modified mode [ '', 509, 511 ]
+23 silly gunzTarPerm extractEntry .gitattributes
+24 silly gunzTarPerm modified mode [ '.gitattributes', 436, 438 ]
+25 silly gunzTarPerm extractEntry .gitignore
+26 silly gunzTarPerm modified mode [ '.gitignore', 436, 438 ]
+27 silly gunzTarPerm extractEntry .npmignore
+28 silly gunzTarPerm modified mode [ '.npmignore', 436, 438 ]
+29 silly gunzTarPerm extractEntry README.markdown
+30 silly gunzTarPerm modified mode [ 'README.markdown', 436, 438 ]
+31 silly gunzTarPerm extractEntry bin/
+32 silly gunzTarPerm modified mode [ 'bin/', 509, 511 ]
+33 silly gunzTarPerm extractEntry bin/kuduscript
+34 silly gunzTarPerm modified mode [ 'bin/kuduscript', 436, 438 ]
+35 silly gunzTarPerm extractEntry bin/kuduscript.js
+36 silly gunzTarPerm modified mode [ 'bin/kuduscript.js', 436, 438 ]
+37 silly gunzTarPerm extractEntry build.cmd
+38 silly gunzTarPerm modified mode [ 'build.cmd', 436, 438 ]
+39 silly gunzTarPerm extractEntry lib/
+40 silly gunzTarPerm modified mode [ 'lib/', 509, 511 ]
+41 silly gunzTarPerm extractEntry lib/generator._js
+42 silly gunzTarPerm modified mode [ 'lib/generator._js', 436, 438 ]
+43 silly gunzTarPerm extractEntry lib/generator.js
+44 silly gunzTarPerm modified mode [ 'lib/generator.js', 436, 438 ]
+45 silly gunzTarPerm extractEntry lib/polyfill.js
+46 silly gunzTarPerm modified mode [ 'lib/polyfill.js', 436, 438 ]
+47 silly gunzTarPerm extractEntry lib/templates/
+48 silly gunzTarPerm modified mode [ 'lib/templates/', 509, 511 ]
+49 silly gunzTarPerm extractEntry lib/templates/deploy.bash.aspnet.core.template
+50 silly gunzTarPerm modified mode [ 'lib/templates/deploy.bash.aspnet.core.template', 436, 438 ]
+51 silly gunzTarPerm extractEntry lib/templates/deploy.bash.aspnet.template
+52 silly gunzTarPerm modified mode [ 'lib/templates/deploy.bash.aspnet.template', 436, 438 ]
+53 silly gunzTarPerm extractEntry lib/templates/deploy.bash.basic.template
+54 silly gunzTarPerm modified mode [ 'lib/templates/deploy.bash.basic.template', 436, 438 ]
+55 silly gunzTarPerm extractEntry lib/templates/deploy.bash.functionbasic.template
+56 silly gunzTarPerm modified mode [ 'lib/templates/deploy.bash.functionbasic.template', 436, 438 ]
+57 silly gunzTarPerm extractEntry lib/templates/deploy.bash.node.template
+58 silly gunzTarPerm modified mode [ 'lib/templates/deploy.bash.node.template', 436, 438 ]
+59 silly gunzTarPerm extractEntry lib/templates/deploy.bash.php.template
+60 silly gunzTarPerm modified mode [ 'lib/templates/deploy.bash.php.template', 436, 438 ]
+61 silly gunzTarPerm extractEntry lib/templates/deploy.bash.postfix.template
+62 silly gunzTarPerm modified mode [ 'lib/templates/deploy.bash.postfix.template', 436, 438 ]
+63 silly gunzTarPerm extractEntry lib/templates/deploy.bash.prefix.template
+64 silly gunzTarPerm modified mode [ 'lib/templates/deploy.bash.prefix.template', 436, 438 ]
+65 silly gunzTarPerm extractEntry lib/templates/deploy.bash.ruby.template
+66 silly gunzTarPerm modified mode [ 'lib/templates/deploy.bash.ruby.template', 436, 438 ]
+67 silly gunzTarPerm extractEntry lib/templates/deploy.batch.aspnet.core.template
+68 silly gunzTarPerm modified mode [ 'lib/templates/deploy.batch.aspnet.core.template', 436, 438 ]
+69 silly gunzTarPerm extractEntry lib/templates/deploy.batch.aspnet.template
+70 silly gunzTarPerm modified mode [ 'lib/templates/deploy.batch.aspnet.template', 436, 438 ]
+71 silly gunzTarPerm extractEntry lib/templates/deploy.batch.aspnet.wap.template
+72 silly gunzTarPerm modified mode [ 'lib/templates/deploy.batch.aspnet.wap.template', 436, 438 ]
+73 silly gunzTarPerm extractEntry lib/templates/deploy.batch.aspnet.website.template
+74 silly gunzTarPerm modified mode [ 'lib/templates/deploy.batch.aspnet.website.template',
+74 silly gunzTarPerm   436,
+74 silly gunzTarPerm   438 ]
+75 silly gunzTarPerm extractEntry lib/templates/deploy.batch.basic.template
+76 silly gunzTarPerm modified mode [ 'lib/templates/deploy.batch.basic.template', 436, 438 ]
+77 silly gunzTarPerm extractEntry lib/templates/deploy.batch.dotnetconsole.template
+78 silly gunzTarPerm modified mode [ 'lib/templates/deploy.batch.dotnetconsole.template', 436, 438 ]
+79 silly gunzTarPerm extractEntry lib/templates/deploy.batch.functionbasic.template
+80 silly gunzTarPerm modified mode [ 'lib/templates/deploy.batch.functionbasic.template', 436, 438 ]
+81 silly gunzTarPerm extractEntry lib/templates/deploy.batch.functionmsbuild.template
+82 silly gunzTarPerm modified mode [ 'lib/templates/deploy.batch.functionmsbuild.template',
+82 silly gunzTarPerm   436,
+82 silly gunzTarPerm   438 ]
+83 silly gunzTarPerm extractEntry lib/templates/deploy.batch.go.template
+84 silly gunzTarPerm modified mode [ 'lib/templates/deploy.batch.go.template', 436, 438 ]
+85 silly gunzTarPerm extractEntry lib/templates/deploy.batch.node.template
+86 silly gunzTarPerm modified mode [ 'lib/templates/deploy.batch.node.template', 436, 438 ]
+87 silly gunzTarPerm extractEntry lib/templates/deploy.batch.postfix.template
+88 silly gunzTarPerm modified mode [ 'lib/templates/deploy.batch.postfix.template', 436, 438 ]
+89 silly gunzTarPerm extractEntry lib/templates/deploy.batch.prefix.template
+90 silly gunzTarPerm modified mode [ 'lib/templates/deploy.batch.prefix.template', 436, 438 ]
+91 silly gunzTarPerm extractEntry lib/templates/deploy.batch.python.template
+92 silly gunzTarPerm modified mode [ 'lib/templates/deploy.batch.python.template', 436, 438 ]
+93 silly gunzTarPerm extractEntry lib/templates/deploy.posh.aspnet.core.template
+94 silly gunzTarPerm modified mode [ 'lib/templates/deploy.posh.aspnet.core.template', 436, 438 ]
+95 silly gunzTarPerm extractEntry lib/templates/deploy.posh.aspnet.template
+96 silly gunzTarPerm modified mode [ 'lib/templates/deploy.posh.aspnet.template', 436, 438 ]
+97 silly gunzTarPerm extractEntry lib/templates/deploy.posh.aspnet.wap.template
+98 silly gunzTarPerm modified mode [ 'lib/templates/deploy.posh.aspnet.wap.template', 436, 438 ]
+99 silly gunzTarPerm extractEntry lib/templates/deploy.posh.aspnet.website.template
+100 silly gunzTarPerm modified mode [ 'lib/templates/deploy.posh.aspnet.website.template', 436, 438 ]
+101 silly gunzTarPerm extractEntry lib/templates/deploy.posh.basic.template
+102 silly gunzTarPerm modified mode [ 'lib/templates/deploy.posh.basic.template', 436, 438 ]
+103 silly gunzTarPerm extractEntry lib/templates/deploy.posh.dotnetconsole.template
+104 silly gunzTarPerm modified mode [ 'lib/templates/deploy.posh.dotnetconsole.template', 436, 438 ]
+105 silly gunzTarPerm extractEntry lib/templates/deploy.posh.node.template
+106 silly gunzTarPerm modified mode [ 'lib/templates/deploy.posh.node.template', 436, 438 ]
+107 silly gunzTarPerm extractEntry lib/templates/deploy.posh.postfix.template
+108 silly gunzTarPerm modified mode [ 'lib/templates/deploy.posh.postfix.template', 436, 438 ]
+109 silly gunzTarPerm extractEntry lib/templates/deploy.posh.prefix.template
+110 silly gunzTarPerm modified mode [ 'lib/templates/deploy.posh.prefix.template', 436, 438 ]
+111 silly gunzTarPerm extractEntry npmpublish.cmd
+112 silly gunzTarPerm modified mode [ 'npmpublish.cmd', 436, 438 ]
+113 silly gunzTarPerm extractEntry package.json
+114 silly gunzTarPerm modified mode [ 'package.json', 436, 438 ]
+115 silly gunzTarPerm extractEntry smoketest.cmd
+116 silly gunzTarPerm modified mode [ 'smoketest.cmd', 436, 438 ]
+117 silly gunzTarPerm extractEntry test.cmd
+118 silly gunzTarPerm modified mode [ 'test.cmd', 436, 438 ]
+119 silly gunzTarPerm extractEntry test/
+120 silly gunzTarPerm modified mode [ 'test/', 509, 511 ]
+121 silly gunzTarPerm extractEntry test/smokeTest.js
+122 silly gunzTarPerm modified mode [ 'test/smokeTest.js', 436, 438 ]
+123 silly lockFile dcc42615-0c0f853f5d44f574265ed3118-unpack tar://C:\Users\nickwalk\AppData\Local\Temp\npm-16724-DwmZTTQ-\github.com\projectkudu\KuduScript\tarball\39c5665a08f2ae50c0f853f5d44f574265ed3118-unpack
+124 silly lockFile dcc42615-0c0f853f5d44f574265ed3118-unpack tar://C:\Users\nickwalk\AppData\Local\Temp\npm-16724-DwmZTTQ-\github.com\projectkudu\KuduScript\tarball\39c5665a08f2ae50c0f853f5d44f574265ed3118-unpack
+125 silly lockFile 2ccbf55f-08f2ae50c0f853f5d44f574265ed3118 tar://C:\Users\nickwalk\AppData\Local\Temp\npm-16724-DwmZTTQ-\github.com\projectkudu\KuduScript\tarball\39c5665a08f2ae50c0f853f5d44f574265ed3118
+126 silly lockFile 2ccbf55f-08f2ae50c0f853f5d44f574265ed3118 tar://C:\Users\nickwalk\AppData\Local\Temp\npm-16724-DwmZTTQ-\github.com\projectkudu\KuduScript\tarball\39c5665a08f2ae50c0f853f5d44f574265ed3118
+127 silly lockFile 6d3c8a51-08f2ae50c0f853f5d44f574265ed3118 https://github.com/projectkudu/KuduScript/tarball/39c5665a08f2ae50c0f853f5d44f574265ed3118
+128 silly lockFile 6d3c8a51-08f2ae50c0f853f5d44f574265ed3118 https://github.com/projectkudu/KuduScript/tarball/39c5665a08f2ae50c0f853f5d44f574265ed3118
+129 silly resolved [ { name: 'kuduscript',
+129 silly resolved     author: { name: 'Outercurve Foundation' },
+129 silly resolved     version: '1.0.15',
+129 silly resolved     description: 'Tool for generating deployment scripts for Azure Websites',
+129 silly resolved     tags: [ 'azure', 'deployment' ],
+129 silly resolved     keywords: [ 'node', 'azure', 'deployment' ],
+129 silly resolved     main: './bin/kuduscript.js',
+129 silly resolved     engines: { node: '>= 0.6.20' },
+129 silly resolved     scripts: { build: '_node -c lib', test: 'test.cmd' },
+129 silly resolved     repository:
+129 silly resolved      { type: 'git',
+129 silly resolved        url: 'https://github.com/projectkudu/kuduscript.git' },
+129 silly resolved     homepage: 'http://github.com/projectkudu/kuduscript',
+129 silly resolved     bugs: { url: 'http://github.com/projectkudu/kuduscript/issues' },
+129 silly resolved     bin: { kuduscript: './bin/kuduscript' },
+129 silly resolved     licenses: [ [Object] ],
+129 silly resolved     readmeFilename: 'README.markdown',
+129 silly resolved     dependencies: { commander: '~1.1.1', streamline: '~0.4.10' },
+129 silly resolved     devDependencies: { mocha: '~1.13.0', should: '~1.3.0' },
+129 silly resolved     readme: '### Kudu Script\n\nTool for generating deployment scripts for Azure Websites\n\nHere is the workflow to make fixes and propagate them:\n\n- Make fix and commit it to this repo\n- Run `npmpublish.cmd` to publish it to npm and create a tag with a new version. Check that the new version is on https://www.npmjs.com/package/kuduscript\n- Push the fix to this repo. Use `git push --follow-tags` to push the new tag\n- Go to https://github.com/Azure/azure-xplat-cli/blob/dev/package.json and send a PR to update the kuduscript reference to the new version. This will make it available in the xplat tool\n- Change https://github.com/projectkudu/kudu/blob/master/Kudu.Services.Web/updateNodeModules.cmd to point to the new kuduscript commit. This will make Kudu use it\n\nThis project is under the benevolent umbrella of the [.NET Foundation](http://www.dotnetfoundation.org/).\n',
+129 silly resolved     _id: 'kuduscript@1.0.15',
+129 silly resolved     _shasum: '397483c197b162e853b38d5a6357ec2773c31b0d',
+129 silly resolved     _from: 'https://github.com/projectkudu/KuduScript/tarball/39c5665a08f2ae50c0f853f5d44f574265ed3118',
+129 silly resolved     _resolved: 'https://github.com/projectkudu/KuduScript/tarball/39c5665a08f2ae50c0f853f5d44f574265ed3118' } ]
+130 info install kuduscript@1.0.15 into g:\nick\g\kudu\dotnetcore\Kudu.Services.Web
+131 info installOne kuduscript@1.0.15
+132 verbose node_modules\kuduscript unbuild
+133 verbose tar unpack C:\Users\nickwalk\AppData\Roaming\npm-cache\kuduscript\1.0.15\package.tgz
+134 silly lockFile 83a91bbc-ices-Web-node-modules-kuduscript tar://g:\nick\g\kudu\dotnetcore\Kudu.Services.Web\node_modules\kuduscript
+135 verbose lock tar://g:\nick\g\kudu\dotnetcore\Kudu.Services.Web\node_modules\kuduscript C:\Users\nickwalk\AppData\Roaming\npm-cache\83a91bbc-ices-Web-node-modules-kuduscript.lock
+136 silly lockFile b7eaeddb-he-kuduscript-1-0-15-package-tgz tar://C:\Users\nickwalk\AppData\Roaming\npm-cache\kuduscript\1.0.15\package.tgz
+137 verbose lock tar://C:\Users\nickwalk\AppData\Roaming\npm-cache\kuduscript\1.0.15\package.tgz C:\Users\nickwalk\AppData\Roaming\npm-cache\b7eaeddb-he-kuduscript-1-0-15-package-tgz.lock
+138 silly gunzTarPerm modes [ '777', '666' ]
+139 silly gunzTarPerm extractEntry
+140 silly gunzTarPerm modified mode [ '', 509, 511 ]
+141 silly gunzTarPerm extractEntry .gitattributes
+142 silly gunzTarPerm modified mode [ '.gitattributes', 436, 438 ]
+143 silly gunzTarPerm extractEntry .gitignore
+144 silly gunzTarPerm modified mode [ '.gitignore', 436, 438 ]
+145 silly gunzTarPerm extractEntry .npmignore
+146 silly gunzTarPerm modified mode [ '.npmignore', 436, 438 ]
+147 silly gunzTarPerm extractEntry README.markdown
+148 silly gunzTarPerm modified mode [ 'README.markdown', 436, 438 ]
+149 silly gunzTarPerm extractEntry bin/
+150 silly gunzTarPerm modified mode [ 'bin/', 509, 511 ]
+151 silly gunzTarPerm extractEntry bin/kuduscript
+152 silly gunzTarPerm modified mode [ 'bin/kuduscript', 436, 438 ]
+153 silly gunzTarPerm extractEntry bin/kuduscript.js
+154 silly gunzTarPerm modified mode [ 'bin/kuduscript.js', 436, 438 ]
+155 silly gunzTarPerm extractEntry build.cmd
+156 silly gunzTarPerm modified mode [ 'build.cmd', 436, 438 ]
+157 silly gunzTarPerm extractEntry lib/
+158 silly gunzTarPerm modified mode [ 'lib/', 509, 511 ]
+159 silly gunzTarPerm extractEntry lib/generator._js
+160 silly gunzTarPerm modified mode [ 'lib/generator._js', 436, 438 ]
+161 silly gunzTarPerm extractEntry lib/generator.js
+162 silly gunzTarPerm modified mode [ 'lib/generator.js', 436, 438 ]
+163 silly gunzTarPerm extractEntry lib/polyfill.js
+164 silly gunzTarPerm modified mode [ 'lib/polyfill.js', 436, 438 ]
+165 silly gunzTarPerm extractEntry lib/templates/
+166 silly gunzTarPerm modified mode [ 'lib/templates/', 509, 511 ]
+167 silly gunzTarPerm extractEntry lib/templates/deploy.bash.aspnet.core.template
+168 silly gunzTarPerm modified mode [ 'lib/templates/deploy.bash.aspnet.core.template', 436, 438 ]
+169 silly gunzTarPerm extractEntry lib/templates/deploy.bash.aspnet.template
+170 silly gunzTarPerm modified mode [ 'lib/templates/deploy.bash.aspnet.template', 436, 438 ]
+171 silly gunzTarPerm extractEntry lib/templates/deploy.bash.basic.template
+172 silly gunzTarPerm modified mode [ 'lib/templates/deploy.bash.basic.template', 436, 438 ]
+173 silly gunzTarPerm extractEntry lib/templates/deploy.bash.functionbasic.template
+174 silly gunzTarPerm modified mode [ 'lib/templates/deploy.bash.functionbasic.template', 436, 438 ]
+175 silly gunzTarPerm extractEntry lib/templates/deploy.bash.node.template
+176 silly gunzTarPerm modified mode [ 'lib/templates/deploy.bash.node.template', 436, 438 ]
+177 silly gunzTarPerm extractEntry lib/templates/deploy.bash.php.template
+178 silly gunzTarPerm modified mode [ 'lib/templates/deploy.bash.php.template', 436, 438 ]
+179 silly gunzTarPerm extractEntry lib/templates/deploy.bash.postfix.template
+180 silly gunzTarPerm modified mode [ 'lib/templates/deploy.bash.postfix.template', 436, 438 ]
+181 silly gunzTarPerm extractEntry lib/templates/deploy.bash.prefix.template
+182 silly gunzTarPerm modified mode [ 'lib/templates/deploy.bash.prefix.template', 436, 438 ]
+183 silly gunzTarPerm extractEntry lib/templates/deploy.bash.ruby.template
+184 silly gunzTarPerm modified mode [ 'lib/templates/deploy.bash.ruby.template', 436, 438 ]
+185 silly gunzTarPerm extractEntry lib/templates/deploy.batch.aspnet.core.template
+186 silly gunzTarPerm modified mode [ 'lib/templates/deploy.batch.aspnet.core.template', 436, 438 ]
+187 silly gunzTarPerm extractEntry lib/templates/deploy.batch.aspnet.template
+188 silly gunzTarPerm modified mode [ 'lib/templates/deploy.batch.aspnet.template', 436, 438 ]
+189 silly gunzTarPerm extractEntry lib/templates/deploy.batch.aspnet.wap.template
+190 silly gunzTarPerm modified mode [ 'lib/templates/deploy.batch.aspnet.wap.template', 436, 438 ]
+191 silly gunzTarPerm extractEntry lib/templates/deploy.batch.aspnet.website.template
+192 silly gunzTarPerm modified mode [ 'lib/templates/deploy.batch.aspnet.website.template',
+192 silly gunzTarPerm   436,
+192 silly gunzTarPerm   438 ]
+193 silly gunzTarPerm extractEntry lib/templates/deploy.batch.basic.template
+194 silly gunzTarPerm modified mode [ 'lib/templates/deploy.batch.basic.template', 436, 438 ]
+195 silly gunzTarPerm extractEntry lib/templates/deploy.batch.dotnetconsole.template
+196 silly gunzTarPerm modified mode [ 'lib/templates/deploy.batch.dotnetconsole.template', 436, 438 ]
+197 silly gunzTarPerm extractEntry lib/templates/deploy.batch.functionbasic.template
+198 silly gunzTarPerm modified mode [ 'lib/templates/deploy.batch.functionbasic.template', 436, 438 ]
+199 silly gunzTarPerm extractEntry lib/templates/deploy.batch.functionmsbuild.template
+200 silly gunzTarPerm modified mode [ 'lib/templates/deploy.batch.functionmsbuild.template',
+200 silly gunzTarPerm   436,
+200 silly gunzTarPerm   438 ]
+201 silly gunzTarPerm extractEntry lib/templates/deploy.batch.go.template
+202 silly gunzTarPerm modified mode [ 'lib/templates/deploy.batch.go.template', 436, 438 ]
+203 silly gunzTarPerm extractEntry lib/templates/deploy.batch.node.template
+204 silly gunzTarPerm modified mode [ 'lib/templates/deploy.batch.node.template', 436, 438 ]
+205 silly gunzTarPerm extractEntry lib/templates/deploy.batch.postfix.template
+206 silly gunzTarPerm modified mode [ 'lib/templates/deploy.batch.postfix.template', 436, 438 ]
+207 silly gunzTarPerm extractEntry lib/templates/deploy.batch.prefix.template
+208 silly gunzTarPerm modified mode [ 'lib/templates/deploy.batch.prefix.template', 436, 438 ]
+209 silly gunzTarPerm extractEntry lib/templates/deploy.batch.python.template
+210 silly gunzTarPerm modified mode [ 'lib/templates/deploy.batch.python.template', 436, 438 ]
+211 silly gunzTarPerm extractEntry lib/templates/deploy.posh.aspnet.core.template
+212 silly gunzTarPerm modified mode [ 'lib/templates/deploy.posh.aspnet.core.template', 436, 438 ]
+213 silly gunzTarPerm extractEntry lib/templates/deploy.posh.aspnet.template
+214 silly gunzTarPerm modified mode [ 'lib/templates/deploy.posh.aspnet.template', 436, 438 ]
+215 silly gunzTarPerm extractEntry lib/templates/deploy.posh.aspnet.wap.template
+216 silly gunzTarPerm modified mode [ 'lib/templates/deploy.posh.aspnet.wap.template', 436, 438 ]
+217 silly gunzTarPerm extractEntry lib/templates/deploy.posh.aspnet.website.template
+218 silly gunzTarPerm modified mode [ 'lib/templates/deploy.posh.aspnet.website.template', 436, 438 ]
+219 silly gunzTarPerm extractEntry lib/templates/deploy.posh.basic.template
+220 silly gunzTarPerm modified mode [ 'lib/templates/deploy.posh.basic.template', 436, 438 ]
+221 silly gunzTarPerm extractEntry lib/templates/deploy.posh.dotnetconsole.template
+222 silly gunzTarPerm modified mode [ 'lib/templates/deploy.posh.dotnetconsole.template', 436, 438 ]
+223 silly gunzTarPerm extractEntry lib/templates/deploy.posh.node.template
+224 silly gunzTarPerm modified mode [ 'lib/templates/deploy.posh.node.template', 436, 438 ]
+225 silly gunzTarPerm extractEntry lib/templates/deploy.posh.postfix.template
+226 silly gunzTarPerm modified mode [ 'lib/templates/deploy.posh.postfix.template', 436, 438 ]
+227 silly gunzTarPerm extractEntry lib/templates/deploy.posh.prefix.template
+228 silly gunzTarPerm modified mode [ 'lib/templates/deploy.posh.prefix.template', 436, 438 ]
+229 silly gunzTarPerm extractEntry npmpublish.cmd
+230 silly gunzTarPerm modified mode [ 'npmpublish.cmd', 436, 438 ]
+231 silly gunzTarPerm extractEntry package.json
+232 silly gunzTarPerm modified mode [ 'package.json', 436, 438 ]
+233 silly gunzTarPerm extractEntry smoketest.cmd
+234 silly gunzTarPerm modified mode [ 'smoketest.cmd', 436, 438 ]
+235 silly gunzTarPerm extractEntry test.cmd
+236 silly gunzTarPerm modified mode [ 'test.cmd', 436, 438 ]
+237 silly gunzTarPerm extractEntry test/
+238 silly gunzTarPerm modified mode [ 'test/', 509, 511 ]
+239 silly gunzTarPerm extractEntry test/smokeTest.js
+240 silly gunzTarPerm modified mode [ 'test/smokeTest.js', 436, 438 ]
+241 silly lockFile 83a91bbc-ices-Web-node-modules-kuduscript tar://g:\nick\g\kudu\dotnetcore\Kudu.Services.Web\node_modules\kuduscript
+242 silly lockFile 83a91bbc-ices-Web-node-modules-kuduscript tar://g:\nick\g\kudu\dotnetcore\Kudu.Services.Web\node_modules\kuduscript
+243 silly lockFile b7eaeddb-he-kuduscript-1-0-15-package-tgz tar://C:\Users\nickwalk\AppData\Roaming\npm-cache\kuduscript\1.0.15\package.tgz
+244 silly lockFile b7eaeddb-he-kuduscript-1-0-15-package-tgz tar://C:\Users\nickwalk\AppData\Roaming\npm-cache\kuduscript\1.0.15\package.tgz
+245 info preinstall kuduscript@1.0.15
+246 verbose readDependencies using package.json deps
+247 verbose readDependencies using package.json deps
+248 verbose cache add [ 'commander@~1.1.1', null ]
+249 verbose cache add name=undefined spec="commander@~1.1.1" args=["commander@~1.1.1",null]
+250 verbose parsed url { protocol: null,
+250 verbose parsed url   slashes: null,
+250 verbose parsed url   auth: null,
+250 verbose parsed url   host: null,
+250 verbose parsed url   port: null,
+250 verbose parsed url   hostname: null,
+250 verbose parsed url   hash: null,
+250 verbose parsed url   search: null,
+250 verbose parsed url   query: null,
+250 verbose parsed url   pathname: 'commander@~1.1.1',
+250 verbose parsed url   path: 'commander@~1.1.1',
+250 verbose parsed url   href: 'commander@~1.1.1' }
+251 verbose cache add [ 'streamline@~0.4.10', null ]
+252 verbose cache add name=undefined spec="streamline@~0.4.10" args=["streamline@~0.4.10",null]
+253 verbose parsed url { protocol: null,
+253 verbose parsed url   slashes: null,
+253 verbose parsed url   auth: null,
+253 verbose parsed url   host: null,
+253 verbose parsed url   port: null,
+253 verbose parsed url   hostname: null,
+253 verbose parsed url   hash: null,
+253 verbose parsed url   search: null,
+253 verbose parsed url   query: null,
+253 verbose parsed url   pathname: 'streamline@~0.4.10',
+253 verbose parsed url   path: 'streamline@~0.4.10',
+253 verbose parsed url   href: 'streamline@~0.4.10' }
+254 verbose cache add name="commander" spec="~1.1.1" args=["commander","~1.1.1"]
+255 verbose parsed url { protocol: null,
+255 verbose parsed url   slashes: null,
+255 verbose parsed url   auth: null,
+255 verbose parsed url   host: null,
+255 verbose parsed url   port: null,
+255 verbose parsed url   hostname: null,
+255 verbose parsed url   hash: null,
+255 verbose parsed url   search: null,
+255 verbose parsed url   query: null,
+255 verbose parsed url   pathname: '~1.1.1',
+255 verbose parsed url   path: '~1.1.1',
+255 verbose parsed url   href: '~1.1.1' }
+256 verbose addNamed [ 'commander', '~1.1.1' ]
+257 verbose addNamed [ null, '>=1.1.1-0 <1.2.0-0' ]
+258 silly lockFile f812655f-commander-1-1-1 commander@~1.1.1
+259 verbose lock commander@~1.1.1 C:\Users\nickwalk\AppData\Roaming\npm-cache\f812655f-commander-1-1-1.lock
+260 verbose cache add name="streamline" spec="~0.4.10" args=["streamline","~0.4.10"]
+261 verbose parsed url { protocol: null,
+261 verbose parsed url   slashes: null,
+261 verbose parsed url   auth: null,
+261 verbose parsed url   host: null,
+261 verbose parsed url   port: null,
+261 verbose parsed url   hostname: null,
+261 verbose parsed url   hash: null,
+261 verbose parsed url   search: null,
+261 verbose parsed url   query: null,
+261 verbose parsed url   pathname: '~0.4.10',
+261 verbose parsed url   path: '~0.4.10',
+261 verbose parsed url   href: '~0.4.10' }
+262 verbose addNamed [ 'streamline', '~0.4.10' ]
+263 verbose addNamed [ null, '>=0.4.10-0 <0.5.0-0' ]
+264 silly lockFile c5f97872-streamline-0-4-10 streamline@~0.4.10
+265 verbose lock streamline@~0.4.10 C:\Users\nickwalk\AppData\Roaming\npm-cache\c5f97872-streamline-0-4-10.lock
+266 silly addNameRange { name: 'commander',
+266 silly addNameRange   range: '>=1.1.1-0 <1.2.0-0',
+266 silly addNameRange   hasData: false }
+267 silly addNameRange { name: 'streamline',
+267 silly addNameRange   range: '>=0.4.10-0 <0.5.0-0',
+267 silly addNameRange   hasData: false }
+268 verbose request where is /commander
+269 verbose request registry https://registry.npmjs.org/
+270 verbose url raw /commander
+271 verbose url resolving [ 'https://registry.npmjs.org/', './commander' ]
+272 verbose url resolved https://registry.npmjs.org/commander
+273 verbose request where is https://registry.npmjs.org/commander
+274 info trying registry request attempt 1 at 12:17:30
+275 verbose etag "5a4f388e-13266"
+276 http GET https://registry.npmjs.org/commander
+277 verbose request where is /streamline
+278 verbose request registry https://registry.npmjs.org/
+279 verbose url raw /streamline
+280 verbose url resolving [ 'https://registry.npmjs.org/', './streamline' ]
+281 verbose url resolved https://registry.npmjs.org/streamline
+282 verbose request where is https://registry.npmjs.org/streamline
+283 info trying registry request attempt 1 at 12:17:30
+284 verbose etag "59ee19d7-301cb"
+285 http GET https://registry.npmjs.org/streamline
+286 http 304 https://registry.npmjs.org/commander
+287 silly registry.get cb [ 304,
+287 silly registry.get   { date: 'Fri, 05 Jan 2018 20:17:31 GMT',
+287 silly registry.get     via: '1.1 varnish',
+287 silly registry.get     'cache-control': 'max-age=300',
+287 silly registry.get     etag: '"5a4f388e-13266"',
+287 silly registry.get     age: '13325',
+287 silly registry.get     connection: 'keep-alive',
+287 silly registry.get     'x-served-by': 'cache-mdw17348-MDW',
+287 silly registry.get     'x-cache': 'HIT',
+287 silly registry.get     'x-cache-hits': '329',
+287 silly registry.get     'x-timer': 'S1515183451.107356,VS0,VE0',
+287 silly registry.get     vary: 'Accept-Encoding, Accept' } ]
+288 verbose etag https://registry.npmjs.org/commander from cache
+289 http 304 https://registry.npmjs.org/streamline
+290 silly registry.get cb [ 304,
+290 silly registry.get   { date: 'Fri, 05 Jan 2018 20:17:31 GMT',
+290 silly registry.get     via: '1.1 varnish',
+290 silly registry.get     'cache-control': 'max-age=300',
+290 silly registry.get     etag: '"59ee19d7-301cb"',
+290 silly registry.get     age: '13802',
+290 silly registry.get     connection: 'keep-alive',
+290 silly registry.get     'x-served-by': 'cache-mdw17322-MDW',
+290 silly registry.get     'x-cache': 'HIT',
+290 silly registry.get     'x-cache-hits': '1',
+290 silly registry.get     'x-timer': 'S1515183451.112891,VS0,VE1',
+290 silly registry.get     vary: 'Accept-Encoding, Accept' } ]
+291 verbose etag https://registry.npmjs.org/streamline from cache
+292 silly addNameRange number 2 { name: 'commander', range: '>=1.1.1-0 <1.2.0-0', hasData: true }
+293 silly addNameRange versions [ 'commander',
+293 silly addNameRange   [ '0.0.1',
+293 silly addNameRange     '0.0.3',
+293 silly addNameRange     '0.0.4',
+293 silly addNameRange     '0.0.5',
+293 silly addNameRange     '0.1.0',
+293 silly addNameRange     '0.2.0',
+293 silly addNameRange     '0.2.1',
+293 silly addNameRange     '0.3.0',
+293 silly addNameRange     '0.3.1',
+293 silly addNameRange     '0.3.2',
+293 silly addNameRange     '0.3.3',
+293 silly addNameRange     '0.4.0',
+293 silly addNameRange     '0.4.1',
+293 silly addNameRange     '0.4.2',
+293 silly addNameRange     '0.4.3',
+293 silly addNameRange     '0.5.0',
+293 silly addNameRange     '0.5.1',
+293 silly addNameRange     '0.6.0',
+293 silly addNameRange     '0.6.1',
+293 silly addNameRange     '0.5.2',
+293 silly addNameRange     '1.0.0',
+293 silly addNameRange     '1.0.1',
+293 silly addNameRange     '1.0.2',
+293 silly addNameRange     '1.0.3',
+293 silly addNameRange     '1.0.4',
+293 silly addNameRange     '1.0.5',
+293 silly addNameRange     '1.1.0',
+293 silly addNameRange     '1.1.1',
+293 silly addNameRange     '1.2.0',
+293 silly addNameRange     '1.3.0',
+293 silly addNameRange     '1.3.1',
+293 silly addNameRange     '1.3.2',
+293 silly addNameRange     '2.0.0',
+293 silly addNameRange     '2.1.0',
+293 silly addNameRange     '2.2.0',
+293 silly addNameRange     '2.3.0',
+293 silly addNameRange     '2.4.0',
+293 silly addNameRange     '2.5.0',
+293 silly addNameRange     '2.5.1',
+293 silly addNameRange     '2.6.0',
+293 silly addNameRange     '2.7.0',
+293 silly addNameRange     '2.7.1',
+293 silly addNameRange     '2.8.0',
+293 silly addNameRange     '2.8.1',
+293 silly addNameRange     '2.9.0',
+293 silly addNameRange     '2.10.0',
+293 silly addNameRange     '2.11.0',
+293 silly addNameRange     '2.12.0',
+293 silly addNameRange     '2.12.1',
+293 silly addNameRange     '2.12.2' ] ]
+294 verbose addNamed [ 'commander', '1.1.1' ]
+295 verbose addNamed [ '1.1.1', '1.1.1' ]
+296 silly lockFile e890879a-commander-1-1-1 commander@1.1.1
+297 verbose lock commander@1.1.1 C:\Users\nickwalk\AppData\Roaming\npm-cache\e890879a-commander-1-1-1.lock
+298 silly addNameRange number 2 { name: 'streamline',
+298 silly addNameRange   range: '>=0.4.10-0 <0.5.0-0',
+298 silly addNameRange   hasData: true }
+299 silly addNameRange versions [ 'streamline',
+299 silly addNameRange   [ '0.1.0',
+299 silly addNameRange     '0.1.4',
+299 silly addNameRange     '0.1.6',
+299 silly addNameRange     '0.1.7',
+299 silly addNameRange     '0.1.8',
+299 silly addNameRange     '0.1.9',
+299 silly addNameRange     '0.1.10',
+299 silly addNameRange     '0.1.11',
+299 silly addNameRange     '0.1.14',
+299 silly addNameRange     '0.1.15',
+299 silly addNameRange     '0.1.16',
+299 silly addNameRange     '0.1.17',
+299 silly addNameRange     '0.1.18',
+299 silly addNameRange     '0.1.19',
+299 silly addNameRange     '0.1.20',
+299 silly addNameRange     '0.1.21',
+299 silly addNameRange     '0.1.22',
+299 silly addNameRange     '0.1.23',
+299 silly addNameRange     '0.1.25',
+299 silly addNameRange     '0.1.26',
+299 silly addNameRange     '0.1.27',
+299 silly addNameRange     '0.1.29',
+299 silly addNameRange     '0.1.30',
+299 silly addNameRange     '0.1.31',
+299 silly addNameRange     '0.1.32',
+299 silly addNameRange     '0.1.33',
+299 silly addNameRange     '0.1.34',
+299 silly addNameRange     '0.1.35',
+299 silly addNameRange     '0.1.36',
+299 silly addNameRange     '0.1.37',
+299 silly addNameRange     '0.1.38',
+299 silly addNameRange     '0.1.39',
+299 silly addNameRange     '0.1.40',
+299 silly addNameRange     '0.1.41',
+299 silly addNameRange     '0.1.42',
+299 silly addNameRange     '0.1.43',
+299 silly addNameRange     '0.1.44',
+299 silly addNameRange     '0.1.45',
+299 silly addNameRange     '0.1.46',
+299 silly addNameRange     '0.1.47',
+299 silly addNameRange     '0.1.48',
+299 silly addNameRange     '0.2.0',
+299 silly addNameRange     '0.2.1',
+299 silly addNameRange     '0.2.2',
+299 silly addNameRange     '0.2.3',
+299 silly addNameRange     '0.2.4',
+299 silly addNameRange     '0.3.0',
+299 silly addNameRange     '0.3.1',
+299 silly addNameRange     '0.3.2',
+299 silly addNameRange     '0.3.3',
+299 silly addNameRange     '0.3.4',
+299 silly addNameRange     '0.3.6',
+299 silly addNameRange     '0.4.0',
+299 silly addNameRange     '0.4.1',
+299 silly addNameRange     '0.4.2',
+299 silly addNameRange     '0.4.3',
+299 silly addNameRange     '0.4.4',
+299 silly addNameRange     '0.4.5',
+299 silly addNameRange     '0.4.6',
+299 silly addNameRange     '0.4.7',
+299 silly addNameRange     '0.4.8',
+299 silly addNameRange     '0.4.9',
+299 silly addNameRange     '0.4.10',
+299 silly addNameRange     '0.4.11',
+299 silly addNameRange     '0.6.0',
+299 silly addNameRange     '0.8.0',
+299 silly addNameRange     '0.1.1-b',
+299 silly addNameRange     '0.1.1-d',
+299 silly addNameRange     '0.1.1-f',
+299 silly addNameRange     '0.1.1-g',
+299 silly addNameRange     '0.1.1-h',
+299 silly addNameRange     '0.1.3-a',
+299 silly addNameRange     '0.1.3-c',
+299 silly addNameRange     '0.1.3-e',
+299 silly addNameRange     '0.1.3-g',
+299 silly addNameRange     '0.1.3-j',
+299 silly addNameRange     '0.8.1',
+299 silly addNameRange     '0.10.0',
+299 silly addNameRange     '0.10.1',
+299 silly addNameRange     '0.10.2',
+299 silly addNameRange     '0.10.3',
+299 silly addNameRange     '0.10.4',
+299 silly addNameRange     '0.10.5',
+299 silly addNameRange     '0.10.6',
+299 silly addNameRange     '0.10.7',
+299 silly addNameRange     '0.10.8',
+299 silly addNameRange     '0.10.9',
+299 silly addNameRange     '0.10.11',
+299 silly addNameRange     '0.10.12',
+299 silly addNameRange     '0.10.13',
+299 silly addNameRange     '0.10.14',
+299 silly addNameRange     '0.10.15',
+299 silly addNameRange     '0.10.16',
+299 silly addNameRange     '0.10.17',
+299 silly addNameRange     '0.12.0',
+299 silly addNameRange     '0.12.1',
+299 silly addNameRange     '1.0.1',
+299 silly addNameRange     '1.0.2',
+299 silly addNameRange     '1.0.3',
+299 silly addNameRange     '1.0.4',
+299 silly addNameRange     '1.0.5',
+299 silly addNameRange     '1.0.6',
+299 silly addNameRange     '1.0.7',
+299 silly addNameRange     '1.0.9',
+299 silly addNameRange     '1.0.10',
+299 silly addNameRange     '1.0.11',
+299 silly addNameRange     '1.0.12',
+299 silly addNameRange     '1.0.13',
+299 silly addNameRange     '2.0.0',
+299 silly addNameRange     '2.0.1',
+299 silly addNameRange     '2.0.2',
+299 silly addNameRange     '2.0.3',
+299 silly addNameRange     '2.0.4',
+299 silly addNameRange     '2.0.5',
+299 silly addNameRange     '2.0.6',
+299 silly addNameRange     '2.0.7',
+299 silly addNameRange     '2.0.8',
+299 silly addNameRange     '2.0.9',
+299 silly addNameRange     '2.0.10',
+299 silly addNameRange     '2.0.11',
+299 silly addNameRange     '2.0.12',
+299 silly addNameRange     '2.0.13',
+299 silly addNameRange     '2.0.14',
+299 silly addNameRange     '2.0.15',
+299 silly addNameRange     '2.0.16',
+299 silly addNameRange     '2.0.17',
+299 silly addNameRange     '2.0.18',
+299 silly addNameRange     '2.0.19',
+299 silly addNameRange     '2.1.0',
+299 silly addNameRange     '2.1.1',
+299 silly addNameRange     '2.1.2' ] ]
+300 verbose addNamed [ 'streamline', '0.4.11' ]
+301 verbose addNamed [ '0.4.11', '0.4.11' ]
+302 silly lockFile 87f1b891-streamline-0-4-11 streamline@0.4.11
+303 verbose lock streamline@0.4.11 C:\Users\nickwalk\AppData\Roaming\npm-cache\87f1b891-streamline-0-4-11.lock
+304 silly lockFile e890879a-commander-1-1-1 commander@1.1.1
+305 silly lockFile e890879a-commander-1-1-1 commander@1.1.1
+306 silly lockFile f812655f-commander-1-1-1 commander@~1.1.1
+307 silly lockFile f812655f-commander-1-1-1 commander@~1.1.1
+308 silly lockFile 87f1b891-streamline-0-4-11 streamline@0.4.11
+309 silly lockFile 87f1b891-streamline-0-4-11 streamline@0.4.11
+310 silly lockFile c5f97872-streamline-0-4-10 streamline@~0.4.10
+311 silly lockFile c5f97872-streamline-0-4-10 streamline@~0.4.10
+312 silly resolved [ { name: 'commander',
+312 silly resolved     version: '1.1.1',
+312 silly resolved     description: 'the complete solution for node.js command-line programs',
+312 silly resolved     keywords: [ 'command', 'option', 'parser', 'prompt', 'stdin' ],
+312 silly resolved     author: { name: 'TJ Holowaychuk', email: 'tj@vision-media.ca' },
+312 silly resolved     repository:
+312 silly resolved      { type: 'git',
+312 silly resolved        url: 'git+https://github.com/visionmedia/commander.js.git' },
+312 silly resolved     dependencies: { keypress: '0.1.x' },
+312 silly resolved     devDependencies: { should: '>= 0.0.1' },
+312 silly resolved     scripts: { test: 'make test' },
+312 silly resolved     main: 'index',
+312 silly resolved     engines: { node: '>= 0.6.x' },
+312 silly resolved     _id: 'commander@1.1.1',
+312 silly resolved     dist:
+312 silly resolved      { shasum: '50d1651868ae60eccff0a2d9f34595376bc6b041',
+312 silly resolved        tarball: 'https://registry.npmjs.org/commander/-/commander-1.1.1.tgz' },
+312 silly resolved     _npmVersion: '1.1.65',
+312 silly resolved     _npmUser: { name: 'tjholowaychuk', email: 'tj@vision-media.ca' },
+312 silly resolved     maintainers: [ [Object] ],
+312 silly resolved     directories: {},
+312 silly resolved     _shasum: '50d1651868ae60eccff0a2d9f34595376bc6b041',
+312 silly resolved     _from: 'commander@~1.1.1',
+312 silly resolved     _resolved: 'https://registry.npmjs.org/commander/-/commander-1.1.1.tgz',
+312 silly resolved     bugs: { url: 'https://github.com/visionmedia/commander.js/issues' },
+312 silly resolved     readme: 'ERROR: No README data found!',
+312 silly resolved     homepage: 'https://github.com/visionmedia/commander.js' },
+312 silly resolved   { name: 'streamline',
+312 silly resolved     description: 'Asynchronous Javascript for dummies',
+312 silly resolved     version: '0.4.11',
+312 silly resolved     homepage: 'http://github.com/Sage/streamlinejs',
+312 silly resolved     repository: { type: 'git', url: 'git://github.com/Sage/streamlinejs.git' },
+312 silly resolved     engines: { node: '>=0.6.0' },
+312 silly resolved     dependencies: {},
+312 silly resolved     author: { name: 'Bruno Jouhier' },
+312 silly resolved     directories: { lib: './lib', bin: './bin' },
+312 silly resolved     main: 'index.js',
+312 silly resolved     bin:
+312 silly resolved      { _coffee: 'bin/_coffee',
+312 silly resolved        _node: 'bin/_node',
+312 silly resolved        _node_harmony: 'bin/_node_harmony',
+312 silly resolved        'coffee-streamline': 'bin/coffee-streamline',
+312 silly resolved        'node-streamline': 'bin/node-streamline' },
+312 silly resolved     contributors:
+312 silly resolved      [ [Object],
+312 silly resolved        [Object],
+312 silly resolved        [Object],
+312 silly resolved        [Object],
+312 silly resolved        [Object],
+312 silly resolved        [Object],
+312 silly resolved        [Object],
+312 silly resolved        [Object],
+312 silly resolved        [Object] ],
+312 silly resolved     _id: 'streamline@0.4.11',
+312 silly resolved     dist:
+312 silly resolved      { shasum: '0e3c4f24a3f052b231b12d5049085a0a099be782',
+312 silly resolved        tarball: 'https://registry.npmjs.org/streamline/-/streamline-0.4.11.tgz' },
+312 silly resolved     _from: 'streamline@~0.4.10',
+312 silly resolved     _npmVersion: '1.2.18',
+312 silly resolved     _npmUser: { name: 'bjouhier', email: 'bjouhier@gmail.com' },
+312 silly resolved     maintainers: [ [Object] ],
+312 silly resolved     _shasum: '0e3c4f24a3f052b231b12d5049085a0a099be782',
+312 silly resolved     _resolved: 'https://registry.npmjs.org/streamline/-/streamline-0.4.11.tgz',
+312 silly resolved     bugs: { url: 'https://github.com/Sage/streamlinejs/issues' },
+312 silly resolved     readme: 'ERROR: No README data found!' } ]
+313 info install commander@1.1.1 into g:\nick\g\kudu\dotnetcore\Kudu.Services.Web\node_modules\kuduscript
+314 info install streamline@0.4.11 into g:\nick\g\kudu\dotnetcore\Kudu.Services.Web\node_modules\kuduscript
+315 info installOne commander@1.1.1
+316 info installOne streamline@0.4.11
+317 verbose node_modules\kuduscript\node_modules\commander unbuild
+318 verbose node_modules\kuduscript\node_modules\streamline unbuild
+319 verbose tar unpack C:\Users\nickwalk\AppData\Roaming\npm-cache\commander\1.1.1\package.tgz
+320 silly lockFile d61a9fc4-uduscript-node-modules-commander tar://g:\nick\g\kudu\dotnetcore\Kudu.Services.Web\node_modules\kuduscript\node_modules\commander
+321 verbose lock tar://g:\nick\g\kudu\dotnetcore\Kudu.Services.Web\node_modules\kuduscript\node_modules\commander C:\Users\nickwalk\AppData\Roaming\npm-cache\d61a9fc4-uduscript-node-modules-commander.lock
+322 silly lockFile 330803d3-ache-commander-1-1-1-package-tgz tar://C:\Users\nickwalk\AppData\Roaming\npm-cache\commander\1.1.1\package.tgz
+323 verbose lock tar://C:\Users\nickwalk\AppData\Roaming\npm-cache\commander\1.1.1\package.tgz C:\Users\nickwalk\AppData\Roaming\npm-cache\330803d3-ache-commander-1-1-1-package-tgz.lock
+324 verbose tar unpack C:\Users\nickwalk\AppData\Roaming\npm-cache\streamline\0.4.11\package.tgz
+325 silly lockFile 111c58b4-duscript-node-modules-streamline tar://g:\nick\g\kudu\dotnetcore\Kudu.Services.Web\node_modules\kuduscript\node_modules\streamline
+326 verbose lock tar://g:\nick\g\kudu\dotnetcore\Kudu.Services.Web\node_modules\kuduscript\node_modules\streamline C:\Users\nickwalk\AppData\Roaming\npm-cache\111c58b4-duscript-node-modules-streamline.lock
+327 silly lockFile bb84d0b8-he-streamline-0-4-11-package-tgz tar://C:\Users\nickwalk\AppData\Roaming\npm-cache\streamline\0.4.11\package.tgz
+328 verbose lock tar://C:\Users\nickwalk\AppData\Roaming\npm-cache\streamline\0.4.11\package.tgz C:\Users\nickwalk\AppData\Roaming\npm-cache\bb84d0b8-he-streamline-0-4-11-package-tgz.lock
+329 silly gunzTarPerm modes [ '777', '666' ]
+330 silly gunzTarPerm modes [ '777', '666' ]
+331 silly gunzTarPerm extractEntry package.json
+332 silly gunzTarPerm modified mode [ 'package.json', 420, 438 ]
+333 silly gunzTarPerm extractEntry package.json
+334 silly gunzTarPerm modified mode [ 'package.json', 420, 438 ]
+335 silly gunzTarPerm extractEntry .npmignore
+336 silly gunzTarPerm modified mode [ '.npmignore', 420, 438 ]
+337 silly gunzTarPerm extractEntry index.js
+338 silly gunzTarPerm modified mode [ 'index.js', 420, 438 ]
+339 silly gunzTarPerm extractEntry README.md
+340 silly gunzTarPerm modified mode [ 'README.md', 420, 438 ]
+341 silly gunzTarPerm extractEntry index.js
+342 silly gunzTarPerm modified mode [ 'index.js', 420, 438 ]
+343 silly gunzTarPerm extractEntry .travis.yml
+344 silly gunzTarPerm modified mode [ '.travis.yml', 420, 438 ]
+345 silly gunzTarPerm extractEntry module.js
+346 silly gunzTarPerm modified mode [ 'module.js', 420, 438 ]
+347 silly gunzTarPerm extractEntry History.md
+348 silly gunzTarPerm modified mode [ 'History.md', 420, 438 ]
+349 silly gunzTarPerm extractEntry Makefile
+350 silly gunzTarPerm modified mode [ 'Makefile', 420, 438 ]
+351 silly gunzTarPerm extractEntry Readme.md
+352 silly gunzTarPerm modified mode [ 'Readme.md', 420, 438 ]
+353 error Error: ENOENT, lstat 'g:\nick\g\kudu\dotnetcore\Kudu.Services.Web\node_modules\kuduscript\node_modules\streamline\README.md'
+354 error If you need help, you may report this *entire* log,
+354 error including the npm and node versions, at:
+354 error     <http://github.com/npm/npm/issues>
+355 error System Windows_NT 6.2.9200
+356 error command "C:\\Program Files\\nodejs\\\\node.exe" "C:\\Program Files\\nodejs\\node_modules\\npm\\bin\\npm-cli.js" "install" "https://github.com/projectkudu/KuduScript/tarball/39c5665a08f2ae50c0f853f5d44f574265ed3118"
+357 error cwd g:\nick\g\kudu\dotnetcore\Kudu.Services.Web
+358 error node -v v0.10.35
+359 error npm -v 1.4.28
+360 error path g:\nick\g\kudu\dotnetcore\Kudu.Services.Web\node_modules\kuduscript\node_modules\streamline\README.md
+361 error fstream_path g:\nick\g\kudu\dotnetcore\Kudu.Services.Web\node_modules\kuduscript\node_modules\streamline\README.md
+362 error fstream_type File
+363 error fstream_class FileWriter
+364 error code ENOENT
+365 error errno 34
+366 error fstream_stack C:\Program Files\nodejs\node_modules\npm\node_modules\fstream\lib\writer.js:287:26
+366 error fstream_stack Object.oncomplete (evalmachine.<anonymous>:108:15)
+367 verbose exit [ 34, true ]

@@ -28,3 +28,4 @@ Kudu.Services.Web/node_modules/
 .vs/
 Build/7zip/
 /dotnetcore/Kudu.Services.Web/node_modules
+/dotnetcore/Kudu.Console/node_modules/

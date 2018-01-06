@@ -29,5 +29,30 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
+  
+  <ItemGroup>
+    <!-- Odds and ends for the Scripts\ directory -->
+    <ContentWithTargetPath Include="$(NuGetPackageRoot)KuduSync.NET\**\tools\*" TargetPath="Scripts\%(FileName)%(Extension)" CopyToOutputDirectory="Always" />
+    <ContentWithTargetPath Include="$(NuGetPackageRoot)KuduHandles\**\KuduHandles.exe" TargetPath="Scripts\KuduHandles.exe" CopyToOutputDirectory="Always" />
+	<!-- TODO this relative path will change -->
+    <ContentWithTargetPath Include="..\..\Build\nuget.exe" TargetPath="Scripts\nuget.exe" CopyToOutputDirectory="Always" />
+  </ItemGroup>
+  
+  <!-- TODO We run updateNodeModules for Kudu.Console now, in addition to Kudu.Services.Web,
+       since Kudu.Console now exists as a self-contained published .NET Core binary in its own
+	   subdirectory under Kudu.Services.Web and it expects to have its own node_modules folder -->
+  <!-- Run updateNodeModules to install kuduscript -->
+  <Target Name="UpdateNodeModules" BeforeTargets="GetCopyToOutputDirectoryItems">
+    <Exec Command="&quot;$(ProjectDir)\..\Kudu.Services.Web\updateNodeModules.cmd&quot; &quot;$(ProjectDir)&quot;" />    
+    
+    <!-- We can't put this ContentWithTargetPath up with the others because they are evaluated at the start of the
+         build, before the node_modules directory is created. Items defined in a Target are evaluated at runtime. -->
+    <!-- HACK See https://github.com/Microsoft/msbuild/issues/2844. Had to define a placeholder item and then
+         build another one on top of it to get the appropriate metadata. -->
+    <ItemGroup>
+      <ToCopy Include="node_modules\**\*" />
+      <ContentWithTargetPath Include="@(ToCopy)" TargetPath="%(Identity)" CopyToOutputDirectory="Always" />
+    </ItemGroup>
+  </Target>
 
 </Project>

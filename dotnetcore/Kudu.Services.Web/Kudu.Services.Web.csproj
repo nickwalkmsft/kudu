@@ -15,36 +15,28 @@
     <ProjectReference Include="..\Kudu.Services\Kudu.Services.csproj" />
   </ItemGroup>
   
-  <!-- It's much easier to include these as content so they automatically get handled for both the build and publish workflows,
-       as opposed to handling them as explicit post-build and post-publish copy activities. ContentWithTargetPath is an item type not
-       known to Visual Studio that allows you to specify a target. -->
   <ItemGroup>
     <!-- Odds and ends for the Scripts\ directory -->
     <ContentWithTargetPath Include="$(NuGetPackageRoot)KuduSync.NET\**\tools\*" TargetPath="Scripts\%(FileName)%(Extension)" CopyToOutputDirectory="Always" />
     <ContentWithTargetPath Include="$(NuGetPackageRoot)KuduHandles\**\KuduHandles.exe" TargetPath="Scripts\KuduHandles.exe" CopyToOutputDirectory="Always" />
+	<!-- TODO this relative path will change -->
     <ContentWithTargetPath Include="..\..\Build\nuget.exe" TargetPath="Scripts\nuget.exe" CopyToOutputDirectory="Always" />
-
-    <!-- node_modules, created below with updateNodeModules -->
-    <ContentWithTargetPath Include="node_modules\**\*" TargetPath="%(Identity)" CopyToOutputDirectory="Always" />
-    
-    <!-- The published Kudu.Console app -->
-    <ContentWithTargetPath Include="..\Kudu.Console\bin\$(ConfigurationName)\netcoreapp2.0\publish\**\*" TargetPath="KuduConsole\%(RecursiveDir)%(FileName)%(Extension)" CopyToOutputDirectory="Always" />
   </ItemGroup>
+  
   <ItemGroup>
     <Folder Include="wwwroot\Content\Styles\" />
     <Folder Include="wwwroot\Content\Scripts\" />
   </ItemGroup>
 
-  <!-- TODO this used to have a "BuildOutputsUpdated" condition that used compile timestamps. Not sure if they're still available.
-       Running these as BeforeTargets="CopyFilesToOutputDirectory" because they need to be present by then in order for the above
-       ContentWithTargetPath items to pick it up. -->
+  <!-- TODO this used to have a "BuildOutputsUpdated" condition that used compile timestamps. Not sure if they're still available. -->
   <!-- Run updateNodeModules to install kuduscript -->
-  <Target Name="UpdateNodeModules" BeforeTargets="CopyFilesToOutputDirectory">
-    <Exec Command="&quot;$(ProjectDir)\updateNodeModules.cmd&quot; &quot;$(ProjectDir)&quot;" />
+  <Target Name="UpdateNodeModules" AfterTargets="CopyFilesToOutputDirectory">
+    <Exec Command="&quot;$(ProjectDir)\updateNodeModules.cmd&quot; &quot;$(TargetDir)&quot;" />
   </Target>
 
   <!-- Publish Kudu.Console to get a runnable application -->
-  <Target Name="PublishKuduConsole" BeforeTargets="CopyFilesToOutputDirectory">
-    <MSBuild Projects="..\Kudu.Console\Kudu.Console.csproj" Targets="Publish" Properties="Configuration=$(ConfigurationName)" />
+  <!-- TODO This is slow and builds everything again -->
+  <Target Name="PublishKuduConsole" AfterTargets="Build">
+    <Exec WorkingDirectory="..\Kudu.Console" Command="dotnet publish -c Release -o &quot;&quot;" /> />
   </Target>
 </Project>
