@@ -19,7 +19,7 @@
     <!-- Odds and ends for the Scripts\ directory -->
     <ContentWithTargetPath Include="$(NuGetPackageRoot)KuduSync.NET\**\tools\*" TargetPath="Scripts\%(FileName)%(Extension)" CopyToOutputDirectory="Always" />
     <ContentWithTargetPath Include="$(NuGetPackageRoot)KuduHandles\**\KuduHandles.exe" TargetPath="Scripts\KuduHandles.exe" CopyToOutputDirectory="Always" />
-	<!-- TODO this relative path will change -->
+	<!-- TODO this relative path may change -->
     <ContentWithTargetPath Include="..\..\Build\nuget.exe" TargetPath="Scripts\nuget.exe" CopyToOutputDirectory="Always" />
   </ItemGroup>
   
@@ -28,15 +28,30 @@
     <Folder Include="wwwroot\Content\Scripts\" />
   </ItemGroup>
 
-  <!-- TODO this used to have a "BuildOutputsUpdated" condition that used compile timestamps. Not sure if they're still available. -->
-  <!-- Run updateNodeModules to install kuduscript -->
-  <Target Name="UpdateNodeModules" AfterTargets="CopyFilesToOutputDirectory">
-    <Exec Command="&quot;$(ProjectDir)\updateNodeModules.cmd&quot; &quot;$(TargetDir)&quot;" />
-  </Target>
+  <!-- Copy Kudu.Console into the target directory -->
+  <!-- CORE TODO HACK This is really only good enough for running in the debugger for now, since it relies on
+       runtimeconfig.dev.json to point to dependencies in the nuget folder. When we publish Kudu.Services.Web for deployment,
+       we need to publish Kudu.Console as well and make sure that all the appropriate dependencies are in the right places. -->
+  <Target Name="IncludeKuduConsole" BeforeTargets="GetCopyToOutputDirectoryItems">
+    <Message Importance="high" Text="COPYING FILES" />
 
-  <!-- Publish Kudu.Console to get a runnable application -->
-  <!-- TODO This is slow and builds everything again -->
-  <Target Name="PublishKuduConsole" AfterTargets="Build">
-    <Exec WorkingDirectory="..\Kudu.Console" Command="dotnet publish -c Release -o &quot;&quot;" /> />
+    <!-- We can't put this ContentWithTargetPath up with the others because they are evaluated at the start of the
+         build, before the node_modules directory is created. Items defined in a Target are evaluated at runtime. -->
+    <!-- HACK See https://github.com/Microsoft/msbuild/issues/2844. Had to define a placeholder item and then
+         build another one on top of it to get the appropriate metadata. -->
+    <ItemGroup>
+      <KuduConsole Include="..\Kudu.Console\bin\$(ConfigurationName)\netcoreapp2.0\kudu.dll" />
+      <KuduConsole Include="..\Kudu.Console\bin\$(ConfigurationName)\netcoreapp2.0\kudu.deps.json" />
+      <KuduConsole Include="..\Kudu.Console\bin\$(ConfigurationName)\netcoreapp2.0\kudu.runtimeconfig.dev.json" />
+      <KuduConsole Include="..\Kudu.Console\bin\$(ConfigurationName)\netcoreapp2.0\kudu.runtimeconfig.json" />
+      <ContentWithTargetPath Include="@(KuduConsole)" TargetPath="%(Filename)%(Extension)" CopyToOutputDirectory="Always" />
+    </ItemGroup>
+  </Target>
+  
+  <!-- CORE TODO this used to have a "BuildOutputsUpdated" condition that used compile timestamps. Not sure if they're still available. -->
+  <!-- CORE TODO I think the best way to make this work right with publish is to restore to the source folder and then add a dynamic ContentWithTargetPath -->
+  <!-- Run updateNodeModules to install kuduscript -->
+  <Target Name="UpdateNodeModules" AfterTargets="Build">
+    <Exec Command="&quot;$(ProjectDir)\updateNodeModules.cmd&quot; &quot;$(TargetDir)&quot;" />
   </Target>
 </Project>

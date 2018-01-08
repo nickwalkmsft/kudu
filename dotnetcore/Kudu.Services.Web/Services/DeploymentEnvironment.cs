@@ -23,7 +23,7 @@ namespace Kudu.Services.Web.Services
         {
             get
             {
-                return Path.Combine(PlatformServices.Default.Application.ApplicationBasePath, "KuduConsole", "kudu.dll");
+                return Path.Combine(PlatformServices.Default.Application.ApplicationBasePath, "kudu.dll");
             }
         }
 
