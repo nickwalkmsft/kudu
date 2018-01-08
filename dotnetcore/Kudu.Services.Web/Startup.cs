@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -28,7 +26,6 @@ using Kudu.Core.Hooks;
 using Kudu.Contracts.SourceControl;
 using Kudu.Core.SourceControl;
 using Kudu.Services.ServiceHookHandlers;
-using Kudu.Services.Deployment;
 using Microsoft.Extensions.PlatformAbstractions;
 using Kudu.Core.SourceControl.Git;
 using Kudu.Services.Web.Services;
@@ -36,6 +33,7 @@ using Kudu.Services.GitServer;
 using Kudu.Core.Commands;
 using Newtonsoft.Json.Serialization;
 using Kudu.Services.Web.Tracing;
+using Kudu.Core.SSHKey;
 
 namespace Kudu.Services.Web
 {
@@ -69,6 +67,9 @@ namespace Kudu.Services.Web
             // Make sure %HOME% is correctly set
             EnsureHomeEnvironmentVariable();
 
+            // CORE TODO check on this
+            EnsureSiteBitnessEnvironmentVariable();
+
             IEnvironment environment = GetEnvironment();
 
             EnsureDotNetCoreEnvironmentVariable(environment);
@@ -77,7 +78,8 @@ namespace Kudu.Services.Web
             PrependFoldersToPath(environment);
 
             // Per request environment
-            services.AddScoped<IEnvironment>(sp => GetEnvironment(sp.GetRequiredService<IDeploymentSettingsManager>(), sp.GetRequiredService<IHttpContextAccessor>().HttpContext));
+            services.AddScoped<IEnvironment>(sp => GetEnvironment(sp.GetRequiredService<IDeploymentSettingsManager>(),
+                sp.GetRequiredService<IHttpContextAccessor>().HttpContext));
 
             // General
             services.AddSingleton<IServerConfiguration>(serverConfiguration);
@@ -147,21 +149,61 @@ namespace Kudu.Services.Web
 
             services.AddSingleton<IDictionary<string, IOperationLock>>(namedLocks);
 
+            // CORE TODO ShutdownDetector. Needed?
+            //var shutdownDetector = new ShutdownDetector();
+            //shutdownDetector.Initialize();
+
             IDeploymentSettingsManager noContextDeploymentsSettingsManager =
                 new DeploymentSettingsManager(new XmlSettings.Settings(GetSettingsPath(environment)));
 
+            TraceServices.TraceLevel = noContextDeploymentsSettingsManager.GetTraceLevel();
+
             var noContextTraceFactory = new TracerFactory(() => GetTracerWithoutContext(environment, noContextDeploymentsSettingsManager));
             var etwTraceFactory = new TracerFactory(() => new ETWTracer(string.Empty, string.Empty));
-
-            
-            TraceServices.TraceLevel = noContextDeploymentsSettingsManager.GetTraceLevel();
 
             services.AddTransient<IAnalytics>(sp => new Analytics(sp.GetRequiredService<IDeploymentSettingsManager>(),
                                                                   sp.GetRequiredService<IServerConfiguration>(),
                                                                   noContextTraceFactory));
 
+            // CORE TODO Trace unhandled exceptions
+            //AppDomain.CurrentDomain.UnhandledException += (sender, args) =>
+            //{
+            //    var ex = args.ExceptionObject as Exception;
+            //    if (ex != null)
+            //    {
+            //        kernel.Get<IAnalytics>().UnexpectedException(ex);
+            //    }
+            //};
 
+            // CORE TODO
+            // Trace shutdown event
+            // Cannot use shutdownDetector.Token.Register because of race condition
+            // with NinjectServices.Stop via WebActivator.ApplicationShutdownMethodAttribute
+            //Shutdown += () => TraceShutdown(environment, noContextDeploymentsSettingsManager);
 
+            // CORE TODO
+            // LogStream service
+            // The hooks and log stream start endpoint are low traffic end-points. Re-using it to avoid creating another lock
+            //var logStreamManagerLock = hooksLock;
+            //kernel.Bind<LogStreamManager>().ToMethod(context => new LogStreamManager(Path.Combine(environment.RootPath, Constants.LogFilesPath),
+            //                                                                         context.Kernel.Get<IEnvironment>(),
+            //                                                                         context.Kernel.Get<IDeploymentSettingsManager>(),
+            //                                                                         context.Kernel.Get<ITracer>(),
+            //                                                                         shutdownDetector,
+            //                                                                         logStreamManagerLock));
+
+            // CORE TODO the below is no longer needed, since IServiceProvider gets automatically injected into the controller,
+            // but this is a separate reminder to look at InfoRefsController to refactor it since I don't think there's any reason
+            // it needs to use the service locator pattern
+            //kernel.Bind<InfoRefsController>().ToMethod(context => new InfoRefsController(t => context.Kernel.Get(t)))
+            //                                 .InRequestScope();
+
+            // CORE TODO Need to implement this, and same comment as above (not sure why it needs the kernel/iserviceprovider as a
+            // service locator
+            //kernel.Bind<CustomGitRepositoryHandler>().ToMethod(context => new CustomGitRepositoryHandler(t => context.Kernel.Get(t)))
+            //                                         .InRequestScope();
+
+            // Deployment Service
             services.AddScoped<ISettings>(sp => new XmlSettings.Settings(GetSettingsPath(environment)));
 
             services.AddScoped<IDeploymentSettingsManager, DeploymentSettingsManager>();
@@ -172,14 +214,50 @@ namespace Kudu.Services.Web
 
             services.AddScoped<IWebHooksManager, WebHooksManager>();
 
+            // CORE TODO Webjobs dependencies
+            //ITriggeredJobsManager triggeredJobsManager = new TriggeredJobsManager(
+            //    etwTraceFactory,
+            //    kernel.Get<IEnvironment>(),
+            //    kernel.Get<IDeploymentSettingsManager>(),
+            //    kernel.Get<IAnalytics>(),
+            //    kernel.Get<IWebHooksManager>());
+            //kernel.Bind<ITriggeredJobsManager>().ToConstant(triggeredJobsManager)
+            //                                 .InTransientScope();
+
+            //TriggeredJobsScheduler triggeredJobsScheduler = new TriggeredJobsScheduler(
+            //    triggeredJobsManager,
+            //    etwTraceFactory,
+            //    environment,
+            //    kernel.Get<IDeploymentSettingsManager>(),
+            //    kernel.Get<IAnalytics>());
+            //kernel.Bind<TriggeredJobsScheduler>().ToConstant(triggeredJobsScheduler)
+            //                                 .InTransientScope();
+
+            //IContinuousJobsManager continuousJobManager = new ContinuousJobsManager(
+            //    etwTraceFactory,
+            //    kernel.Get<IEnvironment>(),
+            //    kernel.Get<IDeploymentSettingsManager>(),
+            //    kernel.Get<IAnalytics>());
+
+            //OperationManager.SafeExecute(triggeredJobsManager.CleanupDeletedJobs);
+            //OperationManager.SafeExecute(continuousJobManager.CleanupDeletedJobs);
+
+            //kernel.Bind<IContinuousJobsManager>().ToConstant(continuousJobManager)
+            //                     .InTransientScope();
+
             services.AddScoped<ILogger>(sp => GetLogger(sp));
 
             services.AddScoped<IDeploymentManager, DeploymentManager>();
             services.AddScoped<IFetchDeploymentManager, FetchDeploymentManager>();
+            services.AddScoped<ISSHKeyManager, SSHKeyManager>();
 
             services.AddScoped<IRepositoryFactory>(sp => _deploymentLock.RepositoryFactory = new RepositoryFactory(
                 sp.GetRequiredService<IEnvironment>(), sp.GetRequiredService<IDeploymentSettingsManager>(), sp.GetRequiredService<ITraceFactory>()));
-            
+
+            // CORE TODO
+            //kernel.Bind<IApplicationLogsReader>().To<ApplicationLogsReader>()
+            //                                 .InSingletonScope();
+
             // Git server
             services.AddTransient<IDeploymentEnvironment, DeploymentEnvironment>();
 
@@ -207,7 +285,52 @@ namespace Kudu.Services.Web
             services.AddScoped<IServiceHookHandler, VSOHandler>();
             services.AddScoped<IServiceHookHandler, OneDriveHandler>();
 
+            // CORE TODO
+            // SiteExtensions
+            //kernel.Bind<ISiteExtensionManager>().To<SiteExtensionManager>().InRequestScope();
+
+            // CORE TODO
+            // Functions
+            //kernel.Bind<IFunctionManager>().To<FunctionManager>().InRequestScope();
+
             services.AddScoped<ICommandExecutor, CommandExecutor>();
+
+            // CORE TODO This stuff should probably go in a separate method
+            // (they don't really fit into "ConfigureServices"), and much of it is probably no longer needed
+            //MigrateSite(environment, noContextDeploymentsSettingsManager);
+            //RemoveOldTracePath(environment);
+            //RemoveTempFileFromUserDrive(environment);
+
+            //// Temporary fix for https://github.com/npm/npm/issues/5905
+            //EnsureNpmGlobalDirectory();
+            //EnsureUserProfileDirectory();
+
+            //// Skip SSL Certificate Validate
+            //if (Kudu.Core.Environment.SkipSslValidation)
+            //{
+            //    ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
+            //}
+
+            //// Make sure webpages:Enabled is true. Even though we set it in web.config, it could be overwritten by
+            //// an Azure AppSetting that's supposed to be for the site only but incidently affects Kudu as well.
+            //ConfigurationManager.AppSettings["webpages:Enabled"] = "true";
+
+            //// Kudu does not rely owin:appStartup.  This is to avoid Azure AppSetting if set.
+            //if (ConfigurationManager.AppSettings["owin:appStartup"] != null)
+            //{
+            //    // Set the appSetting to null since we cannot use AppSettings.Remove(key) (ReadOnly exception!)
+            //    ConfigurationManager.AppSettings["owin:appStartup"] = null;
+            //}
+
+            //RegisterRoutes(kernel, RouteTable.Routes);
+
+            //// Register the default hubs route: ~/signalr
+            //GlobalHost.DependencyResolver = new SignalRNinjectDependencyResolver(kernel);
+            //GlobalConfiguration.Configuration.Filters.Add(
+            //    new TraceDeprecatedActionAttribute(
+            //        kernel.Get<IAnalytics>(),
+            //        kernel.Get<ITraceFactory>()));
+            //GlobalConfiguration.Configuration.Filters.Add(new EnsureRequestIdHandlerAttribute());
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
@@ -453,6 +576,11 @@ namespace Kudu.Services.Web
             //}
 
             return null;
+        }
+
+        private static void EnsureSiteBitnessEnvironmentVariable()
+        {
+            SetEnvironmentVariableIfNotYetSet("SITE_BITNESS", System.Environment.Is64BitProcess ? Constants.X64Bit : Constants.X86Bit);
         }
     }
 }
