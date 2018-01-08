@@ -3,6 +3,8 @@ using Kudu.Core.Helpers;
 
 namespace Kudu.Services.Web.Pages.DebugConsole
 {
+    // CORE TODO a shim to get the right console to load; couldn't do it the existing way
+    // due to the differences in the way the new razor pages work
     public class DebugConsoleController : Controller
     {
         public ActionResult Index()
