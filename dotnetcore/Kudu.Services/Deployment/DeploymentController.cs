@@ -27,11 +27,11 @@ using Newtonsoft.Json;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
+using Kudu.Services.Zip;
+using System.IO.Compression;
 
 namespace Kudu.Services.Deployment
 {
-    // CORE TODO There was a lot of refactoring here to use IActionResults and some complications around
-    // HttpResponseException (no longer exists). Make sure this still all provides the right behavior.
     public class DeploymentController : Controller
     {
         private static DeploymentsCacheItem _cachedDeployments = DeploymentsCacheItem.None;
@@ -527,7 +527,7 @@ namespace Kudu.Services.Deployment
         }
 
         /// <summary>
-        /// Get the list of all deployments
+        /// Gets a zip with containing deploy.cmd and .deployment
         /// </summary>
         /// <returns></returns>
         [HttpGet]
@@ -547,21 +547,24 @@ namespace Kudu.Services.Deployment
                     return NotFound("Operation only supported if not using a custom deployment script");
                 }
 
-                // CORE TODO PushStreamContent (ZipStreamContent's parent class) no longer exists because we now have Response.Body.
-                // See new implementation in ZipController.cs
-
-                /*HttpResponseMessage response = Request.CreateResponse();
-                response.Content = ZipStreamContent.Create("deploymentscript.zip", _tracer, zip =>
+                var result = new FileCallbackResult("application/zip", (outputStream, _) =>
                 {
-                    // Add deploy.cmd to zip file
-                    zip.AddFile(DeploymentManager.DeploymentScriptFileName, deploymentScriptContent);
+                    using (var zip = new ZipArchive(outputStream, ZipArchiveMode.Create, leaveOpen: false))
+                    {
+                        // Add deploy.cmd to zip file
+                        zip.AddFile(DeploymentManager.DeploymentScriptFileName, deploymentScriptContent);
 
-                    // Add .deployment to cmd file
-                    zip.AddFile(DeploymentSettingsProvider.DeployConfigFile, "[config]\ncommand = {0}\n".FormatInvariant(DeploymentManager.DeploymentScriptFileName));
-                });
+                        // Add .deployment to cmd file
+                        zip.AddFile(DeploymentSettingsProvider.DeployConfigFile, "[config]\ncommand = {0}\n".FormatInvariant(DeploymentManager.DeploymentScriptFileName));
+                    }
 
-                return response;*/
-                throw new NotImplementedException();
+                    return Task.CompletedTask;
+                })
+                {
+                    FileDownloadName = "deploymentscript.zip"
+                };
+
+                return result;
             }
         }
 
