@@ -32,6 +32,7 @@ namespace Kudu.Services.Zip
 
             var result = new FileCallbackResult("application/zip", (outputStream, _) =>
             {
+                // Note that a stream wrapper is no longer needed for ZipArchive, this was fixed in its implementation.
                 using (var zip = new ZipArchive(outputStream, ZipArchiveMode.Create, leaveOpen: false))
                 {
                     foreach (FileSystemInfoBase fileSysInfo in info.GetFileSystemInfos())
@@ -77,44 +78,6 @@ namespace Kudu.Services.Zip
         {
             // We don't support putting an individual file using the zip controller
             return Task.FromResult((IActionResult)NotFound());
-        }
-    }
-
-    // Based on https://blog.stephencleary.com/2016/11/streaming-zip-on-aspnet-core.html
-    // (Similar to how the original implementation was based on https://blog.stephencleary.com/2016/10/async-pushstreamcontent.html)
-    // Note that a stream wrapper is no longer needed, this was fixed in ZipArchive.
-    public class FileCallbackResult : FileResult
-    {
-        private Func<Stream, ActionContext, Task> _callback;
-
-        public FileCallbackResult(string contentType, Func<Stream, ActionContext, Task> callback)
-            : base(contentType)
-        {
-            _callback = callback ?? throw new ArgumentNullException(nameof(callback));
-        }
-
-        public override Task ExecuteResultAsync(ActionContext context)
-        {
-            if (context == null)
-            {
-                throw new ArgumentNullException(nameof(context));
-            }
-            var executor = new FileCallbackResultExecutor(context.HttpContext.RequestServices.GetRequiredService<ILoggerFactory>());
-            return executor.ExecuteAsync(context, this);
-        }
-
-        private sealed class FileCallbackResultExecutor : FileResultExecutorBase
-        {
-            public FileCallbackResultExecutor(ILoggerFactory loggerFactory)
-                : base(CreateLogger<FileCallbackResultExecutor>(loggerFactory))
-            {
-            }
-
-            public Task ExecuteAsync(ActionContext context, FileCallbackResult result)
-            {
-                SetHeadersAndLog(context, result, null);
-                return result._callback(context.HttpContext.Response.Body, context);
-            }
         }
     }
 }

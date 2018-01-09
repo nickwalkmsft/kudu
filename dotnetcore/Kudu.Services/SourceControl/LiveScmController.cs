@@ -1,7 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Net;
-using System.Net.Http;
 using Kudu.Contracts.Infrastructure;
 using Kudu.Contracts.SourceControl;
 using Kudu.Contracts.Tracing;
