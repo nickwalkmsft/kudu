@@ -265,12 +265,13 @@ namespace Kudu.Console
                 binPath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
             }
 
-            // CORE TODO Handing in a null IHttpContextAccessor again
+            // CORE TODO Handing in a null IHttpContextAccessor (and KuduConsoleFullPath) again
             return new Kudu.Core.Environment(root,
                 EnvironmentHelper.NormalizeBinPath(binPath),
                 repositoryPath,
                 requestId,
                 siteRestrictedJwt,
+                null,
                 null);
         }
     }

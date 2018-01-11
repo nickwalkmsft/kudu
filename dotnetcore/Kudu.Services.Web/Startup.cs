@@ -39,9 +39,20 @@ namespace Kudu.Services.Web
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        // CORE TODO this is a hack, esp. considering the hardcoded path separator, hardcoded "Debug\netcoreapp2.0", etc.
+        // The idea is that we want Kudu.Services.Web to run kudu.dll from the directory it was built to when we are locally
+        // debugging, but in release, we will put the published app into a dedicated directory.
+        // Note that the paths are relative to the ApplicationBasePath (Kudu.Services.Web bin directory)
+        public const string KuduConsoleFilename = "kudu.dll";
+        public const string KuduConsoleRelativePath = "KuduConsole";
+        public const string KuduConsoleDevRelativePath = @"..\..\..\..\Kudu.Console\bin\Debug\netcoreapp2.0";
+
+        private readonly IHostingEnvironment hostingEnvironment;
+
+        public Startup(IConfiguration configuration, IHostingEnvironment hostingEnvironment)
         {
             Configuration = configuration;
+            this.hostingEnvironment = hostingEnvironment;
         }
 
         public IConfiguration Configuration { get; }
@@ -70,7 +81,7 @@ namespace Kudu.Services.Web
             // CORE TODO check on this
             EnsureSiteBitnessEnvironmentVariable();
 
-            IEnvironment environment = GetEnvironment();
+            IEnvironment environment = GetEnvironment(hostingEnvironment);
 
             EnsureDotNetCoreEnvironmentVariable(environment);
 
@@ -78,7 +89,7 @@ namespace Kudu.Services.Web
             PrependFoldersToPath(environment);
 
             // Per request environment
-            services.AddScoped<IEnvironment>(sp => GetEnvironment(sp.GetRequiredService<IDeploymentSettingsManager>(),
+            services.AddScoped<IEnvironment>(sp => GetEnvironment(hostingEnvironment, sp.GetRequiredService<IDeploymentSettingsManager>(),
                 sp.GetRequiredService<IHttpContextAccessor>().HttpContext));
 
             // General
@@ -337,9 +348,9 @@ namespace Kudu.Services.Web
 
         // CORE TODO See signalr stuff in NinjectServices
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app)
         {
-            if (env.IsDevelopment())
+            if (hostingEnvironment.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
                 app.UseBrowserLink();
@@ -557,9 +568,9 @@ namespace Kudu.Services.Web
         private static string GetSettingsPath(IEnvironment environment)
         {
             return Path.Combine(environment.DeploymentsPath, Constants.DeploySettingsPath);
-        } 
+        }
 
-        private static IEnvironment GetEnvironment(IDeploymentSettingsManager settings = null, HttpContext httpContext = null)
+        private static IEnvironment GetEnvironment(IHostingEnvironment hostingEnvironment, IDeploymentSettingsManager settings = null, HttpContext httpContext = null)
         {
             string root = PathResolver.ResolveRootPath();
             string siteRoot = Path.Combine(root, Constants.SiteFolder);
@@ -568,8 +579,21 @@ namespace Kudu.Services.Web
             string binPath = PlatformServices.Default.Application.ApplicationBasePath;
             string requestId = httpContext?.Request.GetRequestId();
             string siteRetrictedJwt = httpContext?.Request.GetSiteRetrictedJwt();
+
+            string kuduConsoleFullPath;
+
+            // CORE TODO Clean this up
+            if (hostingEnvironment.IsDevelopment())
+            {
+                kuduConsoleFullPath = Path.Combine(PlatformServices.Default.Application.ApplicationBasePath, KuduConsoleDevRelativePath, KuduConsoleFilename);
+            }
+            else
+            {
+                kuduConsoleFullPath = Path.Combine(PlatformServices.Default.Application.ApplicationBasePath, KuduConsoleRelativePath, KuduConsoleFilename);
+            }
+
             // CORE TODO Environment now requires an HttpContextAccessor, which I have set to null here
-            return new Core.Environment(root, EnvironmentHelper.NormalizeBinPath(binPath), repositoryPath, requestId, siteRetrictedJwt, null);
+            return new Core.Environment(root, EnvironmentHelper.NormalizeBinPath(binPath), repositoryPath, requestId, siteRetrictedJwt, kuduConsoleFullPath, null);
         }
 
         private static void EnsureHomeEnvironmentVariable()

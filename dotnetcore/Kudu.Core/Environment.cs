@@ -101,6 +101,7 @@ namespace Kudu.Core
                 string repositoryPath,
                 string requestId,
                 string siteRetrictedJwt,
+                string kuduConsoleFullPath,
                 IHttpContextAccessor httpContextAccessor)
         {
             RootPath = rootPath;
@@ -151,6 +152,8 @@ namespace Kudu.Core
             SiteRestrictedJwt = siteRetrictedJwt;
 
             _httpContextAccessor = httpContextAccessor;
+
+            KuduConsoleFullPath = kuduConsoleFullPath;
         }
 
         public string RepositoryPath
@@ -367,6 +370,8 @@ namespace Kudu.Core
             get;
             private set;
         }
+
+        public string KuduConsoleFullPath { get; }
 
         public static bool IsAzureEnvironment()
         {
