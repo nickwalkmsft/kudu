@@ -1,7 +1,0 @@
-{
-  "profiles": {
-    "Kudu.Console": {
-      "commandName": "Project"
-    }
-  }
-}
