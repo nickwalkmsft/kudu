@@ -224,7 +224,7 @@ namespace Kudu.Services.Infrastructure
         /// </summary>
         protected bool IsRangeRequest(EntityTagHeaderValue currentEtag)
         {
-            // CORE TODO moving to Microsoft.Net.Http.Headers, make sure it still has the same semantics
+            // CORE TODO Now using Microsoft.Net.Http.Headers, make sure it still has the same semantics
             // (null vs empty string, etc.)
             var headers = Request.GetTypedHeaders();
             if (headers.Range == null)
@@ -243,7 +243,7 @@ namespace Kudu.Services.Infrastructure
         /// </summary>
         protected bool IsIfNoneMatchRequest(EntityTagHeaderValue currentEtag)
         {
-            // CORE TODO moving to Microsoft.Net.Http.Headers, make sure it still has the same semantics
+            // CORE TODO Now using Microsoft.Net.Http.Headers, make sure it still has the same semantics
             // (null vs empty string, etc.)
             var headers = Request.GetTypedHeaders();
             return currentEtag != null && headers.IfNoneMatch != null &&

@@ -339,7 +339,10 @@ namespace Kudu.Core
         {
             get
             {
-                // CORE TODO: Added ? aftter _httpContextAccessor. It's a little messy here.
+                // CORE NOTE: Added ? aftter _httpContextAccessor. It's a little messy here.
+                // Future work should refactor all ASP-specific classes and concerns out of Kudu.Core,
+                // so this should be something like a method that takes the display URL (or this whole bit
+                // of logic should be moved somewhere more appropriate in Kudu.Services or Kudu.Services.Web).
 
                 // GetLeftPart(Authority) returns the https://www.example.com of any Uri
                 var displayUrl = _httpContextAccessor?.HttpContext?.Request?.GetDisplayUrl();

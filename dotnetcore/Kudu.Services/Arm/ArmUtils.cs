@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Http.Extensions;
 
 namespace Kudu.Services.Arm
 {
-    // CORE TODO Check... reworked to use HttpRequest instead of HttpRequestMessage
     public static class ArmUtils
     {
         public const string GeoLocationHeaderKey = "x-ms-geo-location";

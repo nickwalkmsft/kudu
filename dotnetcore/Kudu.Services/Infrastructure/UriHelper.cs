@@ -12,7 +12,6 @@ namespace Kudu.Services.Infrastructure
     {
         private const string DisguisedHostHeaderName = "DISGUISED-HOST";
 
-        // CORE TODO Needs testing; modified to use HttpRequest instead of HttpRequestMessage
         public static Uri GetBaseUri(HttpRequest request)
         {
             return new Uri(GetRequestUri(request).GetComponents(UriComponents.SchemeAndServer, UriFormat.Unescaped));

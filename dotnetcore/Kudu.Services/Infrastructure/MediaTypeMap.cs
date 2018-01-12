@@ -23,7 +23,7 @@ namespace Kudu.Services.Infrastructure
         // CORE TODO Double check this. We no longer have MimeMapping so I use FileExtensionContentTypeProvider
         // from the Microsoft.AspNetCore.StaticFiles package. I left in the ConcurrentDictionary usage and the
         // prepopulation of a couple of types (js, json, md) even though FECTP seems to already have them,
-        // but I don't think the complexity of it is really called for.
+        // but I don't think the complexity of it is really needed.
         public MediaTypeHeaderValue GetMediaType(string fileExtension)
         {
             if (fileExtension == null)

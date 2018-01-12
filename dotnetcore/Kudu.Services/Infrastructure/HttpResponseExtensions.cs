@@ -15,7 +15,7 @@ namespace Kudu.Services.Infrastructure
             //    httpResponseMessage.Content = new NullContent();
             //}
 
-            // CORE TODO Moved to Microsoft.Net.Http.Headers, double check semantics to make sure
+            // CORE TODO Now uses Microsoft.Net.Http.Headers, double check semantics to make sure
             // behavior hasn't changed
             var headers = response.GetTypedHeaders();
             headers.ETag = etag;

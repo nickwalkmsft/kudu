@@ -71,7 +71,9 @@ namespace Kudu.Services.Web
             var serverConfiguration = new ServerConfiguration();
 
             // CORE TODO This is new. See if over time we can refactor away the need for this?
-            // It's kind of a quick hack/compat shim
+            // It's kind of a quick hack/compatibility shim. Ideally you want to get the request context only from where
+            // it's specifically provided to you (Request.HttpContext in a controller, or as an Invoke() parameter in
+            // a middleware) and pass it wherever its needed.
             var contextAccessor = new HttpContextAccessor();
             services.AddSingleton<IHttpContextAccessor>(contextAccessor);
 
@@ -103,8 +105,8 @@ namespace Kudu.Services.Web
              * ILogger needs serious refactoring:
              * - Names should be changed to make it clearer that ILogger is for deployment
              * logging and ITracer and friends are for Kudu tracing
-             * - ILogger is a first-class citizen and .NET core. We should be using it (and
-             * not name-colliding with it)
+             * - ILogger is a first-class citizen in .NET core and has it's own meaning. We should be using it
+             *   where appropriate (and not name-colliding with it)
              * - ITracer vs. ITraceFactory is redundant and confusing.
              * - All this stuff with funcs and factories and TraceServices is overcomplicated.
              * TraceServices only serves to confuse stuff now that we're avoiding
@@ -139,7 +141,6 @@ namespace Kudu.Services.Web
             string sshKeyLockPath = Path.Combine(lockPath, Constants.SSHKeyLockFile);
             string hooksLockPath = Path.Combine(lockPath, Constants.HooksLockFile);
 
-            // CORE TODO grabbing traceFactory on the following few lines instead of resolving from the service collection; any difference?
             _deploymentLock = new DeploymentLockFile(deploymentLockPath, traceFactory);
             _deploymentLock.InitializeAsyncLocks();
 
@@ -160,7 +161,7 @@ namespace Kudu.Services.Web
 
             services.AddSingleton<IDictionary<string, IOperationLock>>(namedLocks);
 
-            // CORE TODO ShutdownDetector. Needed?
+            // CORE TODO ShutdownDetector, used by LogStreamManager.
             //var shutdownDetector = new ShutdownDetector();
             //shutdownDetector.Initialize();
 
@@ -203,14 +204,8 @@ namespace Kudu.Services.Web
             //                                                                         shutdownDetector,
             //                                                                         logStreamManagerLock));
 
-            // CORE TODO the below is no longer needed, since IServiceProvider gets automatically injected into the controller,
-            // but this is a separate reminder to look at InfoRefsController to refactor it since I don't think there's any reason
-            // it needs to use the service locator pattern
-            //kernel.Bind<InfoRefsController>().ToMethod(context => new InfoRefsController(t => context.Kernel.Get(t)))
-            //                                 .InRequestScope();
-
-            // CORE TODO Need to implement this, and same comment as above (not sure why it needs the kernel/iserviceprovider as a
-            // service locator
+            // CORE TODO Need to implement this, and same comment as in InfoRefsController.cs (not sure why it needs the kernel/iserviceprovider as a
+            // service locator, why does it need "delayed binding"?)
             //kernel.Bind<CustomGitRepositoryHandler>().ToMethod(context => new CustomGitRepositoryHandler(t => context.Kernel.Get(t)))
             //                                         .InRequestScope();
 

@@ -575,7 +575,7 @@ namespace Kudu.Services.Deployment
 
         private static bool EtagEquals(HttpRequest request, EntityTagHeaderValue currentEtag)
         {
-            // CORE TODO Double check this... before I found GetTypedHeaders, I didn't think there was a typed implementation of the IfNoneMatch header
+            // CORE TODO Double check this... before I found the GetTypedHeaders() extension method, I didn't think there was a typed implementation of the IfNoneMatch header
             // anymore, so I reimplemented based on the response caching middleware's implementation, leaving out the * match. See
             // https://github.com/aspnet/ResponseCaching/blob/52e8ffefb9b22c7c591aec15845baf07ed99356c/src/Microsoft.AspNetCore.ResponseCaching/ResponseCachingMiddleware.cs#L454-L478
 
@@ -607,7 +607,7 @@ namespace Kudu.Services.Deployment
         {
             try
             {
-                // CORE TODO check this; we no longer have Request.Content
+                // CORE TODO double check this; we no longer have Request.Content
                 //var payload = Request.Content.ReadAsAsync<JObject>().Result;
 
                 JObject payload;

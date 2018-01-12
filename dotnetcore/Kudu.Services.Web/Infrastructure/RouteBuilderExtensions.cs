@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Builder;
 namespace Kudu.Services.Web.Infrastructure
 {
 
-    // CORE TODO just note this was renamed/reworked from RouteCollectionExtensions
+    // CORE NOTE This was renamed/reworked from RouteCollectionExtensions
     public static class RouteBuilderExtensions
     {
         public const string DeprecatedKey = "deprecated";
@@ -39,8 +39,8 @@ namespace Kudu.Services.Web.Infrastructure
 
         public static void MapHttpRoute(this IRouteBuilder routes, string name, string routeTemplate, object defaults, object constraints, bool deprecated)
         {
-            // CORE TODO note that the only place that the deprecated datatoken is used, it only checks to see
-            // if the key is there, not the bool value of it, so this is a little awkward looking due to the way
+            // CORE TODO Note that the only place that the deprecated datatoken is used, it only checks to see
+            // if the key is *there*, not the bool value of it, so this is a little awkward looking due to the way
             // anonymous objects work.
             if (deprecated)
             {
@@ -53,7 +53,7 @@ namespace Kudu.Services.Web.Infrastructure
             }
         }
 
-        // CORE TODO Commenting these out for now
+        // CORE TODO Commenting these out for now. There's a CORE TODO in Startup.cs about supporting the concept of "deprecated" routes.
 
         /*
         public static void MapHandlerDual<THandler>(this IRouteBuilder routes, IKernel kernel, string name, string url)

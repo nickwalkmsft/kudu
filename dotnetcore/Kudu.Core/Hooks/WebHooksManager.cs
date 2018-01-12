@@ -212,6 +212,8 @@ namespace Kudu.Core.Hooks
 
             if (webHook.InsecureSsl)
             {
+                // CORE NOTE WebRequestHandler was replaced with HttpClientHandler here,
+                // and this property is invisible to intellisense.
                 // See https://github.com/dotnet/corefx/issues/9728
                 webRequestHandler.ServerCertificateCustomValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true;
             }

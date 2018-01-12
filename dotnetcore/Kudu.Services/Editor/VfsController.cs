@@ -3,8 +3,6 @@ using System.Diagnostics.Contracts;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Kudu.Common;
@@ -53,7 +51,7 @@ namespace Kudu.Services.Editor
         protected override Task<IActionResult> CreateItemGetResponse(FileSystemInfoBase info, string localFilePath)
         {
             // CORE TODO File() apparently has built in support for range requests and etags. From a cursory glance
-            // that renders bascially all of this obsolete. Will need checking to ensure proper behavior. Can we use PhysicalFile instead?
+            // that renders bascially all of commented implementation belowthis obsolete. Will need checking to ensure proper behavior.
             var fileStream = GetFileReadStream(localFilePath);
             return Task.FromResult(
                 (IActionResult)File(fileStream, MediaTypeMap.GetMediaType(info.Extension).ToString(), info.LastWriteTime, CreateEntityTag(info)));
@@ -195,7 +193,7 @@ namespace Kudu.Services.Editor
             // Existing resources require an etag to be updated.
             var requestHeaders = Request.GetTypedHeaders();
 
-            // CORE TODO check typed header semantics
+            // CORE TODO double check semantics of what you get from GetTypedHeaders() (empty strings vs null, etc.)
             if (requestHeaders.IfMatch == null)
             {
                 return Task.FromResult((IActionResult)StatusCode(StatusCodes.Status412PreconditionFailed, Resources.VfsController_MissingIfMatch));

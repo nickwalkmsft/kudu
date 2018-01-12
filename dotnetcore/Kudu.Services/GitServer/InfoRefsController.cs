@@ -46,7 +46,9 @@ namespace Kudu.Services.GitServer
 
         // Delay ninject binding
         // CORE TODO "Delayed binding" here is just the service locator [anti]pattern,
-        // might be good to refactor this.
+        // might be good to refactor this. I don't see a reason for it. Note that there's
+        // no longer any setup for InfoRefsController in Startup.cs because IServiceProvider
+        // gets injected automatically.
         public InfoRefsController(IServiceProvider serviceProvider)
         {
             _getInstance = t => serviceProvider.GetRequiredService(t);

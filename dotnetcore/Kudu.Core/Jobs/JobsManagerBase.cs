@@ -42,6 +42,9 @@ namespace Kudu.Core.Jobs
         }
     }
 
+    // CORE TODO This used to implement IRegisteredObject and called HostingEnvironment.UnregisterObject(this) in Stop().
+    // See https://stackoverflow.com/a/42785667/173303. I have removed the references to the offending classes since they
+    // are not in ASP.NET core but we still nee to call Stop() in the Register() callback shown in the StackOverflow answer.
     public abstract class JobsManagerBase<TJob> : JobsManagerBase, IJobsManager<TJob>, IDisposable where TJob : JobBase, new()
     {
         private const string DefaultScriptFileName = "run";

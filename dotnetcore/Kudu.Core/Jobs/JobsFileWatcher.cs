@@ -165,6 +165,7 @@ namespace Kudu.Core.Jobs
             // in cases when a parent to that directory is deleted, this handler should 
             // finish quickly so the deletion does not fail.
 
+            // CORE NOTE
             // HostingEnvironment not supported in ASP.NET Core, running a simple Task instead
             // HostingEnvironment.QueueBackgroundWorkItem(cancellationToken =>
 

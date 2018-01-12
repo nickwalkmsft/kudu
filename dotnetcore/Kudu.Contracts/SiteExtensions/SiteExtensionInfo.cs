@@ -43,6 +43,7 @@ namespace Kudu.Contracts.SiteExtensions
             InstallationArgs = info.InstallationArgs;
         }
 
+        // CORE TODO commented out for now to remove dependency on Nuget.Client.VisualStudio.
         //public SiteExtensionInfo(UIPackageMetadata data)
         //{
         //    Id = data.Identity.Id;

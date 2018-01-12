@@ -9,9 +9,6 @@ namespace Kudu.Services.Web.Services
     {
         private readonly IEnvironment _environment;
 
-        // CORE TODO Replaced instances of $"{HttpRuntime.AppDomainPath}/bin" with
-        // PlatformServices.Default.Application.ApplicationBasePath, and "kudu.exe"
-        // with a variable value depending on the hosting environment.
         public DeploymentEnvironment(IEnvironment environment)
         {
             _environment = environment;
