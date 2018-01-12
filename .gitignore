@@ -29,3 +29,4 @@ Kudu.Services.Web/node_modules/
 Build/7zip/
 /dotnetcore/Kudu.Services.Web/node_modules
 /dotnetcore/Kudu.Console/node_modules/
+/dotnetcore/Kudu.Services.Web/npm-debug.log
