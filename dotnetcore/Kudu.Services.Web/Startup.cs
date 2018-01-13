@@ -34,6 +34,7 @@ using Kudu.Core.Commands;
 using Newtonsoft.Json.Serialization;
 using Kudu.Services.Web.Tracing;
 using Kudu.Core.SSHKey;
+using Kudu.Services.Diagnostics;
 
 namespace Kudu.Services.Web
 {
@@ -260,9 +261,9 @@ namespace Kudu.Services.Web
             services.AddScoped<IRepositoryFactory>(sp => _deploymentLock.RepositoryFactory = new RepositoryFactory(
                 sp.GetRequiredService<IEnvironment>(), sp.GetRequiredService<IDeploymentSettingsManager>(), sp.GetRequiredService<ITraceFactory>()));
 
-            // CORE TODO
-            //kernel.Bind<IApplicationLogsReader>().To<ApplicationLogsReader>()
-            //                                 .InSingletonScope();
+            // CORE NOTE This was previously wired up in Ninject with .InSingletonScope. I'm not sure how that worked,
+            // since it depends on an IEnvironment, which was set up with .PerRequestScope. I have made this per request.
+            services.AddScoped<IApplicationLogsReader, ApplicationLogsReader>();
 
             // Git server
             services.AddTransient<IDeploymentEnvironment, DeploymentEnvironment>();
