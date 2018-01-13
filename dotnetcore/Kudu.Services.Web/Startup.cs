@@ -456,24 +456,23 @@ namespace Kudu.Services.Web
                 routes.MapHttpRouteDual("get-setting", "settings/{key}", new { controller = "Settings", action = "Get" }, new { verb = new HttpMethodRouteConstraint("GET") });
                 routes.MapHttpRouteDual("delete-setting", "settings/{key}", new { controller = "Settings", action = "Delete" }, new { verb = new HttpMethodRouteConstraint("DELETE") });
 
-                // CORE TODO
                 // Diagnostics
-                //routes.MapHttpRouteDual("diagnostics", "dump", new { controller = "Diagnostics", action = "GetLog" });
-                //routes.MapHttpRouteDual("diagnostics-set-setting", "diagnostics/settings", new { controller = "Diagnostics", action = "Set" }, new { verb = new HttpMethodConstraint("POST") });
-                //routes.MapHttpRouteDual("diagnostics-get-all-settings", "diagnostics/settings", new { controller = "Diagnostics", action = "GetAll" }, new { verb = new HttpMethodConstraint("GET") });
-                //routes.MapHttpRouteDual("diagnostics-get-setting", "diagnostics/settings/{key}", new { controller = "Diagnostics", action = "Get" }, new { verb = new HttpMethodConstraint("GET") });
-                //routes.MapHttpRouteDual("diagnostics-delete-setting", "diagnostics/settings/{key}", new { controller = "Diagnostics", action = "Delete" }, new { verb = new HttpMethodConstraint("DELETE") });
+                routes.MapHttpRouteDual("diagnostics", "dump", new { controller = "Diagnostics", action = "GetLog" });
+                routes.MapHttpRouteDual("diagnostics-set-setting", "diagnostics/settings", new { controller = "Diagnostics", action = "Set" }, new { verb = new HttpMethodRouteConstraint("POST") });
+                routes.MapHttpRouteDual("diagnostics-get-all-settings", "diagnostics/settings", new { controller = "Diagnostics", action = "GetAll" }, new { verb = new HttpMethodRouteConstraint("GET") });
+                routes.MapHttpRouteDual("diagnostics-get-setting", "diagnostics/settings/{key}", new { controller = "Diagnostics", action = "Get" }, new { verb = new HttpMethodRouteConstraint("GET") });
+                routes.MapHttpRouteDual("diagnostics-delete-setting", "diagnostics/settings/{key}", new { controller = "Diagnostics", action = "Delete" }, new { verb = new HttpMethodRouteConstraint("DELETE") });
 
                 // CORE TODO
                 // Logs
                 //routes.MapHandlerDual<LogStreamHandler>(kernel, "logstream", "logstream/{*path}");
                 //routes.MapHttpRoute("recent-logs", "api/logs/recent", new { controller = "Diagnostics", action = "GetRecentLogs" }, new { verb = new HttpMethodConstraint("GET") });
 
-                //if (!OSDetector.IsOnWindows())
-                //{
-                //    routes.MapHttpRoute("current-docker-logs-zip", "api/logs/docker/zip", new { controller = "Diagnostics", action = "GetDockerLogsZip" }, new { verb = new HttpMethodConstraint("GET") });
-                //    routes.MapHttpRoute("current-docker-logs", "api/logs/docker", new { controller = "Diagnostics", action = "GetDockerLogs" }, new { verb = new HttpMethodConstraint("GET") });
-                //}
+                if (!OSDetector.IsOnWindows())
+                {
+                    routes.MapRoute("current-docker-logs-zip", "api/logs/docker/zip", new { controller = "Diagnostics", action = "GetDockerLogsZip" }, new { verb = new HttpMethodRouteConstraint("GET") });
+                    routes.MapRoute("current-docker-logs", "api/logs/docker", new { controller = "Diagnostics", action = "GetDockerLogs" }, new { verb = new HttpMethodRouteConstraint("GET") });
+                }
 
                 // CORE TODO
                 //var processControllerName = OSDetector.IsOnWindows() ? "Process" : "LinuxProcess";
