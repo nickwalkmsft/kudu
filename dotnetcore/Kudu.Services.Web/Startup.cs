@@ -35,6 +35,7 @@ using Newtonsoft.Json.Serialization;
 using Kudu.Services.Web.Tracing;
 using Kudu.Core.SSHKey;
 using Kudu.Services.Diagnostics;
+using Kudu.Services.Performance;
 
 namespace Kudu.Services.Web
 {
@@ -197,13 +198,19 @@ namespace Kudu.Services.Web
             // CORE TODO
             // LogStream service
             // The hooks and log stream start endpoint are low traffic end-points. Re-using it to avoid creating another lock
-            //var logStreamManagerLock = hooksLock;
+            var logStreamManagerLock = hooksLock;
             //kernel.Bind<LogStreamManager>().ToMethod(context => new LogStreamManager(Path.Combine(environment.RootPath, Constants.LogFilesPath),
             //                                                                         context.Kernel.Get<IEnvironment>(),
             //                                                                         context.Kernel.Get<IDeploymentSettingsManager>(),
             //                                                                         context.Kernel.Get<ITracer>(),
             //                                                                         shutdownDetector,
             //                                                                         logStreamManagerLock));
+
+            services.AddTransient(sp => new LogStreamManager(Path.Combine(environment.RootPath, Constants.LogFilesPath),
+                                                             sp.GetRequiredService<IEnvironment>(),
+                                                             sp.GetRequiredService<IDeploymentSettingsManager>(),
+                                                             sp.GetRequiredService<ITracer>(),
+                                                             logStreamManagerLock));
 
             // CORE TODO Need to implement this, and same comment as in InfoRefsController.cs (not sure why it needs the kernel/iserviceprovider as a
             // service locator, why does it need "delayed binding"?)
@@ -382,6 +389,9 @@ namespace Kudu.Services.Web
 
             // Fetch hook
             app.Map("/deploy", appBranch => appBranch.RunFetchHandler());
+
+            // Log streaming
+            app.Map("/api/logstream", appBranch => appBranch.RunLogStreamHandler());
 
             // Clone url
             foreach (var url in new[] { "/git-upload-pack", $"/{configuration.GitServerRoot}/git-upload-pack" })

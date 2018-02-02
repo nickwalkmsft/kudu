@@ -24,7 +24,9 @@ namespace Kudu.Services.Performance
 
         // Azure 3 mins timeout, heartbeat every mins keep alive.
         private static string[] LogFileExtensions = new string[] { ".txt", ".log", ".htm" };
-        private static TimeSpan HeartbeatInterval = TimeSpan.FromMinutes(1);
+
+        // TODO Set back to 1 minute
+        private static TimeSpan HeartbeatInterval = TimeSpan.FromSeconds(5);
 
         private readonly object _thisLock = new object();
         private readonly string _logPath;
@@ -37,13 +39,15 @@ namespace Kudu.Services.Performance
         private Dictionary<string, long> _logFiles;
         private IFileSystemWatcher _watcher;
         private Timer _heartbeat;
-        private DateTime _lastTraceTime = DateTime.UtcNow;
-        private DateTime _startTime = DateTime.UtcNow;
+        private DateTime _lastTraceTime;
+        private DateTime _startTime;
         private TimeSpan _timeout;
 
         // CORE TODO
         //private ShutdownDetector _shutdownDetector;
         private CancellationTokenRegistration _cancellationTokenRegistration;
+
+        // TODO need to grab "path" from request path
 
         public LogStreamManager(string logPath,
                                 IEnvironment environment,
@@ -61,10 +65,13 @@ namespace Kudu.Services.Performance
             //_results = new List<ProcessRequestAsyncResult>();
         }
 
-        // CORE TODO bind transient
+        // CORE TODO bind this class as transient (one per request)
 
         public async Task ProcessRequest(HttpContext context)
         {
+            _startTime = DateTime.UtcNow;
+            _lastTraceTime = _startTime;
+
             var stopwatch = Stopwatch.StartNew();
             
             // CORE TODO Shutdown detector registration
@@ -77,7 +84,7 @@ namespace Kudu.Services.Performance
             // string routePath = context.Request.RequestContext.RouteData.Values["path"] as string;
 
             string path;
-            string routePath = null;
+            string routePath = "";
             bool enableTrace = false;
 
             // trim '/'
@@ -101,22 +108,39 @@ namespace Kudu.Services.Performance
             await WriteInitialMessage(context);
 
             // CORE TODO Get the fsw and keep it in scope here with a using that ends at the end
-            Initialize(path);
+            //Initialize(path);
 
-            // CORE TODO diagnostics setting
-
-            
+            // CORE TODO diagnostics setting for enabling app logging            
 
             while (!context.RequestAborted.IsCancellationRequested)
             {
                 await Task.Delay(HeartbeatInterval);
 
-                if (stopwatch.Elapsed >= _timeout)
-                {
-                    // notify client with timeout message and end
-                }
+                var elapsed = stopwatch.Elapsed;
 
-                // heartbeat
+                if (elapsed >= _timeout)
+                {
+                    var timeoutMsg = String.Format(
+                        CultureInfo.CurrentCulture,
+                        Resources.LogStream_Timeout,
+                        DateTime.UtcNow.ToString("s"),
+                        (int)elapsed.TotalMinutes,
+                        System.Environment.NewLine);
+
+                    await context.Response.WriteAsync(timeoutMsg);
+                    return;
+                }
+                else if (elapsed >= HeartbeatInterval)
+                {
+                    var heartbeatMsg = String.Format(
+                        CultureInfo.CurrentCulture,
+                        Resources.LogStream_Heartbeat,
+                        DateTime.UtcNow.ToString("s"),
+                        (int)elapsed.TotalMinutes,
+                        System.Environment.NewLine);
+
+                    await context.Response.WriteAsync(heartbeatMsg);
+                }
             }
         }
 
@@ -126,52 +150,52 @@ namespace Kudu.Services.Performance
             return context.Response.WriteAsync(msg);
         }
 
-        private void Initialize(string path)
-        {
-            System.Diagnostics.Debug.Assert(_watcher == null, "we only allow one manager per request!");
+        //private void Initialize(string path)
+        //{
+        //    System.Diagnostics.Debug.Assert(_watcher == null, "we only allow one manager per request!");
 
-            // initalize _logFiles before the file watcher since file watcher event handlers reference _logFiles
-            // this mirrors the Reset() where we stop the file watcher before nulling _logFile.
-            if (_logFiles == null)
-            {
-                var logFiles = new Dictionary<string, long>(StringComparer.OrdinalIgnoreCase);
-                foreach (var ext in LogFileExtensions)
-                {
-                    foreach (var file in Directory.GetFiles(path, "*" + ext, SearchOption.AllDirectories))
-                    {
-                        try
-                        {
-                            logFiles[file] = new FileInfo(file).Length;
-                        }
-                        catch (Exception ex)
-                        {
-                            // avoiding racy with providers cleaning up log file
-                            _tracer.TraceError(ex);
-                        }
-                    }
-                }
+        //    // initalize _logFiles before the file watcher since file watcher event handlers reference _logFiles
+        //    // this mirrors the Reset() where we stop the file watcher before nulling _logFile.
+        //    if (_logFiles == null)
+        //    {
+        //        var logFiles = new Dictionary<string, long>(StringComparer.OrdinalIgnoreCase);
+        //        foreach (var ext in LogFileExtensions)
+        //        {
+        //            foreach (var file in Directory.GetFiles(path, "*" + ext, SearchOption.AllDirectories))
+        //            {
+        //                try
+        //                {
+        //                    logFiles[file] = new FileInfo(file).Length;
+        //                }
+        //                catch (Exception ex)
+        //                {
+        //                    // avoiding racy with providers cleaning up log file
+        //                    _tracer.TraceError(ex);
+        //                }
+        //            }
+        //        }
 
-                _logFiles = logFiles;
-            }
+        //        _logFiles = logFiles;
+        //    }
 
-            if (_watcher == null)
-            {
-                IFileSystemWatcher watcher = OSDetector.IsOnWindows()
-                    ? (IFileSystemWatcher)new FileSystemWatcherWrapper(path, includeSubdirectories: true)
-                    : new NaiveFileSystemWatcher(path, LogFileExtensions);
-                watcher.Changed += new FileSystemEventHandler(DoSafeAction<object, FileSystemEventArgs>(OnChanged, "LogStreamManager.OnChanged"));
-                watcher.Deleted += new FileSystemEventHandler(DoSafeAction<object, FileSystemEventArgs>(OnDeleted, "LogStreamManager.OnDeleted"));
-                watcher.Renamed += new RenamedEventHandler(DoSafeAction<object, RenamedEventArgs>(OnRenamed, "LogStreamManager.OnRenamed"));
-                watcher.Error += new ErrorEventHandler(DoSafeAction<object, ErrorEventArgs>(OnError, "LogStreamManager.OnError"));
-                watcher.Start();
-                _watcher = watcher;
-            }
+        //    if (_watcher == null)
+        //    {
+        //        IFileSystemWatcher watcher = OSDetector.IsOnWindows()
+        //            ? (IFileSystemWatcher)new FileSystemWatcherWrapper(path, includeSubdirectories: true)
+        //            : new NaiveFileSystemWatcher(path, LogFileExtensions);
+        //        watcher.Changed += new FileSystemEventHandler(DoSafeAction<object, FileSystemEventArgs>(OnChanged, "LogStreamManager.OnChanged"));
+        //        watcher.Deleted += new FileSystemEventHandler(DoSafeAction<object, FileSystemEventArgs>(OnDeleted, "LogStreamManager.OnDeleted"));
+        //        watcher.Renamed += new RenamedEventHandler(DoSafeAction<object, RenamedEventArgs>(OnRenamed, "LogStreamManager.OnRenamed"));
+        //        watcher.Error += new ErrorEventHandler(DoSafeAction<object, ErrorEventArgs>(OnError, "LogStreamManager.OnError"));
+        //        watcher.Start();
+        //        _watcher = watcher;
+        //    }
 
-            if (_heartbeat == null)
-            {
-                _heartbeat = new Timer(OnHeartbeat, null, HeartbeatInterval, HeartbeatInterval);
-            }
-        }
+        //    if (_heartbeat == null)
+        //    {
+        //        _heartbeat = new Timer(OnHeartbeat, null, HeartbeatInterval, HeartbeatInterval);
+        //    }
+        //}
 
         // Suppress exception on callback to not crash the process.
         private Action<T1, T2> DoSafeAction<T1, T2>(Action<T1, T2> func, string eventName)

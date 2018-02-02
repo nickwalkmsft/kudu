@@ -1,9 +1,8 @@
 ﻿using Kudu.Contracts.Tracing;
 using Kudu.Core.Tracing;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Kudu.Services.Performance
@@ -27,6 +26,14 @@ namespace Kudu.Services.Performance
                     return Task.CompletedTask;
                 }
             }
+        }
+    }
+
+    public static class LogStreamHandlerExtensions
+    {
+        public static IApplicationBuilder RunLogStreamHandler(this IApplicationBuilder builder)
+        {
+            return builder.UseMiddleware<LogStreamHandlerMiddleware>();
         }
     }
 }
